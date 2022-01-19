@@ -54,7 +54,8 @@ is_remote() {
 runs() {
 	if ! is_remote; then { echo "no gh remote"; exit; }; fi
 	gh run list -L100 | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $4 "\033[0m"" - " "\033[33m" $2 "\033[0m"" - "$9}' | \
-		fzf --ansi --delimiter=: \
+		fzf \
+			--ansi --delimiter=: \
 			--prompt="runs logs: " \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
@@ -62,7 +63,8 @@ runs() {
 
 prs() {
 	lines="$(gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
-		fzf --ansi --delimiter=: \
+		fzf \
+			--ansi --delimiter=: \
 			--prompt="open PRs: " \
 			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}" \
 			--expect="enter,ctrl-d,ctrl-v")"
@@ -107,11 +109,40 @@ logs() {
 search() {
 	read -p "repository name: " repo; [[ -z $repo ]] && exit;
 	read -p "search: " search; [[ -z $search ]] && exit;
-	gh issue list -s"all" -R "$repo" -L 300 | grep "$search" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3 "\033[0m"" - " "\033[33m" $2}' | \
-		fzf --ansi --delimiter=: \
-			--prompt="$search in $repo: " \
-			--bind="enter:execute:(gh issue view -R $repo -c {1})"
+	issue_list="$(gh issue list -s"all" -R $repo -L 300 -S"$search")"
+
+	if [[ -n $issue_list ]]
+	then
+		issue="$(echo "$issue_list" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3 "\033[0m"" - " "\033[33m" $2}' | \
+			fzf \
+				--ansi \
+				--prompt="$search in $repo: ")"
+	else
+		echo "$search not found in $repo"
+		exit
+	fi
+
+	[[ -n $issue ]] && cut -f1 -d: <<< "$issue" | xargs -n1 gh issue view -R $repo -c
 }
+
+myissue() {
+	read -p "repository name: " repo; [[ -z $repo ]] && exit;
+	issue_list="$(gh issue list -s"all" -R "$repo" -A @me)"
+	
+	if [[ -n $issue_list ]]
+	then
+		issue="$(echo "$issue_list" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3 "\033[0m"" - " "\033[33m" $2}' | \
+			fzf \
+				--ansi \
+				--prompt="my issues in $repo: ")"
+	else
+		echo "no issue found in $repo"
+		exit
+	fi
+
+	[[ -n $issue ]] && cut -f1 -d: <<< "$issue" | xargs -n1 gh issue view -R $repo -c
+}
+
 
 # print help page
 [[ "$#" -eq 0 ]] && help
@@ -124,6 +155,7 @@ while [[ "$#" -gt 0 ]]; do
 		-b|branches) branches; shift ;;
 		-l|logs) logs; shift ;;
 		-s|search) search; shift ;;
+		-m|myissue) myissue; shift ;;
 		-V|version) echo "$VERSION"; shift ;;
         *) help;
     esac
