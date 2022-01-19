@@ -10,11 +10,13 @@ help() {
 gh f [cmd]
 
 COMMANDS
-  -r|run: show github actions runs and filter logs
+  -r|run: show github workflow runs and filter logs
   -p|prs: view, diff and checkout PR
-  -b|run: checkout and diff branches
+  -b|branches: checkout and diff branches
+  -l|logs: select commits and show diff
+  -s|search: search issues in any repository
   -h|help: show this help message
-  -v|version: show the current version
+  -V|version: show the current version
 
 USAGE
   gh f -r | gh f runs
@@ -35,6 +37,12 @@ USAGE
   gh f -l | gh f logs
 
   	enter: show selected commit diff
+
+  gh f -s | gh f search
+
+  	prompt for repository name and issue title
+	enter: view selected issue
+
 "
 	echo "$help_message" | $HELP_PAGER
 }
@@ -47,6 +55,7 @@ runs() {
 	if ! is_remote; then { echo "no gh remote"; exit; }; fi
 	gh run list -L100 | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $4 "\033[0m"" - " "\033[33m" $2 "\033[0m"" - "$9}' | \
 		fzf --ansi --delimiter=: \
+			--prompt="runs logs: " \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
@@ -54,8 +63,9 @@ runs() {
 prs() {
 	lines="$(gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
 		fzf --ansi --delimiter=: \
-			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
-			--expect='enter,ctrl-d,ctrl-v')"
+			--prompt="open PRs: " \
+			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}" \
+			--expect="enter,ctrl-d,ctrl-v")"
 
 	key="$(head -1 <<< "$lines")"
 	id="$(sed 1d <<< "$lines" | cut -d: -f1)"
@@ -70,6 +80,7 @@ prs() {
 branches() {
 	lines="$(git branch -a | sed 's/[* ]//g' | \
 		fzf \
+			--prompt="branches: " \
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
 			--expect "enter,ctrl-d")"
 
@@ -93,6 +104,14 @@ logs() {
 	[[ -n ${commit} ]] && cut -f1 -d' ' <<< $commit | xargs -n1 git show
 }
 
+search() {
+	read -p "repository name: " repo; [[ -z $repo ]] && exit;
+	read -p "search: " search; [[ -z $search ]] && exit;
+	gh issue list -s"all" -R "$repo" -L 300 | grep "$search" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3 "\033[0m"" - " "\033[33m" $2}' | \
+		fzf --ansi --delimiter=: \
+			--prompt="$search in $repo: " \
+			--bind="enter:execute:(gh issue view -R $repo -c {1})"
+}
 
 # print help page
 [[ "$#" -eq 0 ]] && help
@@ -104,6 +123,7 @@ while [[ "$#" -gt 0 ]]; do
 		-p|prs) prs; shift ;;
 		-b|branches) branches; shift ;;
 		-l|logs) logs; shift ;;
+		-s|search) search; shift ;;
 		-V|version) echo "$VERSION"; shift ;;
         *) help;
     esac
