@@ -1,14 +1,35 @@
 #!/usr/bin/env bash
 set -e
 
+version="0.1.0"
+
 help() {
 	help_message="
 gh f [cmd]
 
 COMMANDS
-  run: show fzf preview of workflow runs + binding
-  help: show this help message
-  version: show the current version
+  -r|run: show github actions runs and filter logs
+  -p|prs: view, diff and checkout PR
+  -b|run: checkout and diff branches
+  -h|help: show this help message
+  -v|version: show the current version
+
+USAGE
+  gh f -r | gh f runs
+
+	enter: search the logs
+
+  gh f -p | gh f prs
+
+	enter: checkout the PR
+	ctrl-d: diff the PR
+	ctrl-v: view the PR
+
+  gh f -b | gh f branches
+
+	enter: checkout the branch (track if remote)
+	ctrl-d: diff the branch
+
 "
 	echo "$help_message" | bat -l man -p
 }
@@ -22,8 +43,7 @@ runs() {
 	gh run list | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $2 "\033[0m"" - " $9}' | \
 		fzf --ansi --delimiter=: \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
-			--bind "enter:execute:(gh run view --log {1} | bat -l log -p)" \
-			--bind "ctrl-t:execute:(gh run view --log {1} | rg instance | cut -f3 | cut -d' ' -f2 | jq -r '.message' -C | less -R)"
+			--bind "enter:execute:(gh run view --log {1} | bat -l log -p)"
 }
 
 prs() {
@@ -67,7 +87,8 @@ while [[ "$#" -gt 0 ]]; do
 		-r|runs) runs; shift ;;
 		-p|prs) prs; shift ;;
 		-b|branches) branches; shift ;;
-        *) echo "Unknown parameter passed: $1" ;;
+		-V|version) echo "$version"; shift ;;
+        *) help;
     esac
     shift
 done
