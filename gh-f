@@ -27,20 +27,35 @@ runs() {
 }
 
 prs() {
-	gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
+	lines="$(gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
 		fzf --ansi --delimiter=: \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
-			--bind "enter:execute:(gh pr checkout {1})" \
-			--bind "ctrl-v:execute:(gh pr view {1})" \
-			--bind "ctrl-d:execute:(gh pr diff {1})"
+			--expect='enter,ctrl-d,ctrl-v')"
+
+	key="$(head -1 <<< "$lines")"
+	id="$(sed 1d <<< "$lines" | cut -d: -f1)"
+
+	case "$key" in
+		enter) gh pr checkout "$id" ;;
+		ctrl-v) gh pr view "$id" ;;
+		ctrl-d) gh pr diff "$id" ;;
+	esac
 }
 
 branches() {
-	git branch -a | sed 's/[* ]//g' | \
+	lines="$(git branch -a | sed 's/[* ]//g' | \
 		fzf \
-			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always" \
-			--bind "enter:execute:(git checkout {1})" \
-			--bind "ctrl-t:execute:(git checkout --track {1})"
+			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
+			--expect "enter,ctrl-d")"
+
+	key="$(head -1 <<< "$lines")"
+	branch="$(sed '1d;s/remotes\///g' <<< "$lines")"
+
+	case "$key" in
+		enter) [[ $branch == *"origin"* ]] && git checkout --track "$branch" || git checkout "$branch" ;;
+		ctrl-d) git diff "$id" ;;
+	esac
+
 }
 
 # print help page
