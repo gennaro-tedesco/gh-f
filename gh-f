@@ -40,7 +40,7 @@ is_remote() {
 
 runs() {
 	if ! is_remote; then { echo "no gh remote"; exit; }; fi
-	gh run list | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $2 "\033[0m"" - " $9}' | \
+	gh run list -L100 | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $4 "\033[0m"" - " "\033[33m" $2 "\033[0m"" - "$9}' | \
 		fzf --ansi --delimiter=: \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | bat -l log -p)"
