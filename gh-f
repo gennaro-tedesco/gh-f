@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -e
+
+help() {
+	help_message="
+gh f [cmd]
+
+COMMANDS
+  run: show fzf preview of workflow runs + binding
+  help: show this help message
+  version: show the current version
+"
+	echo "$help_message" | bat -l man -p
+}
+
+run() {
+	gh run list | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $2 "\033[0m"" - " $9}' | \
+		fzf --ansi --delimiter=: \
+			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
+			--bind "enter:execute:(gh run view --log {1} | bat -l log -p)" \
+			--bind "ctrl-t:execute:(gh run view --log {1} | rg instance | cut -f3 | cut -d' ' -f2 | jq -r '.message' -C | less -R)"
+}
+
+pr() {
+	gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
+		fzf --ansi --delimiter=: \
+			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
+			--bind "enter:execute:(gh pr diff {1})" \
+			--bind "ctrl-v:execute:(gh pr view {1})" \
+			--bind "ctrl-t:execute:(gh pr checkout {1})"
+}
+
+[[ $(git ls-remote --heads origin 2>/dev/null | wc -l | tr -s ' ') -eq 0 ]] && { echo "no remote found"; exit; }
+
+[[ "$#" -eq 0 ]] && help
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help) help; shift ;;
+		run) run; shift ;;
+		pr) pr; shift ;;
+        *) echo "Unknown parameter passed: $1" ;;
+    esac
+    shift
+done
+
