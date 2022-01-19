@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-version="0.1.0"
+VERSION="0.1.0"
+[[ -z $(command -v bat) ]] && HELP_PAGER="less" || HELP_PAGER="bat -l man -p"
+[[ -z $(command -v bat) ]] && LOG_PAGER="less" || LOG_PAGER="bat -l log -p"
 
 help() {
 	help_message="
@@ -31,7 +33,7 @@ USAGE
 	ctrl-d: diff the branch
 
 "
-	echo "$help_message" | bat -l man -p
+	echo "$help_message" | $HELP_PAGER
 }
 
 is_remote() {
@@ -43,7 +45,7 @@ runs() {
 	gh run list -L100 | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $4 "\033[0m"" - " "\033[33m" $2 "\033[0m"" - "$9}' | \
 		fzf --ansi --delimiter=: \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
-			--bind "enter:execute:(gh run view --log {1} | bat -l log -p)"
+			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
 
 prs() {
@@ -87,7 +89,7 @@ while [[ "$#" -gt 0 ]]; do
 		-r|runs) runs; shift ;;
 		-p|prs) prs; shift ;;
 		-b|branches) branches; shift ;;
-		-V|version) echo "$version"; shift ;;
+		-V|version) echo "$VERSION"; shift ;;
         *) help;
     esac
     shift
