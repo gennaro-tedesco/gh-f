@@ -30,9 +30,17 @@ prs() {
 	gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
 		fzf --ansi --delimiter=: \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
-			--bind "enter:execute:(gh pr diff {1})" \
+			--bind "enter:execute:(gh pr checkout {1})" \
 			--bind "ctrl-v:execute:(gh pr view {1})" \
-			--bind "ctrl-t:execute:(gh pr checkout {1})"
+			--bind "ctrl-d:execute:(gh pr diff {1})"
+}
+
+branches() {
+	git branch -a | sed 's/[* ]//g' | \
+		fzf \
+			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always" \
+			--bind "enter:execute:(git checkout {1})" \
+			--bind "ctrl-t:execute:(git checkout --track {1})"
 }
 
 # print help page
@@ -43,6 +51,7 @@ while [[ "$#" -gt 0 ]]; do
         -h|--help|help) help; shift ;;
 		-r|runs) runs; shift ;;
 		-p|prs) prs; shift ;;
+		-b|branches) branches; shift ;;
         *) echo "Unknown parameter passed: $1" ;;
     esac
     shift
