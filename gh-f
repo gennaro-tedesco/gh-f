@@ -32,6 +32,9 @@ USAGE
 	enter: checkout the branch (track if remote)
 	ctrl-d: diff the branch
 
+  gh f -l | gh f logs
+
+  	enter: show selected commit diff
 "
 	echo "$help_message" | $HELP_PAGER
 }
@@ -80,6 +83,17 @@ branches() {
 
 }
 
+logs() {
+	commit="$(git log --oneline --color=always | \
+		fzf \
+			--ansi \
+			--prompt="$(git branch --show-current): " \
+			--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always")"
+
+	[[ -n ${commit} ]] && cut -f1 -d' ' <<< $commit | xargs -n1 git show
+}
+
+
 # print help page
 [[ "$#" -eq 0 ]] && help
 
@@ -89,6 +103,7 @@ while [[ "$#" -gt 0 ]]; do
 		-r|runs) runs; shift ;;
 		-p|prs) prs; shift ;;
 		-b|branches) branches; shift ;;
+		-l|logs) logs; shift ;;
 		-V|version) echo "$VERSION"; shift ;;
         *) help;
     esac
