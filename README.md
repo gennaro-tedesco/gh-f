@@ -21,7 +21,7 @@
   <a href="#Feedback">Feedback</a>
 </h3>
 
-`gh-f` is the ultimate, compact and snappy `fzf` extension for `gh` cli. It addresses most of your daily GitHub workflow, if not all of it: `f` stands for fuzzy, fzf or fomething felse.
+`gh-f` is the ultimate, compact and snappy `fzf` extension for `gh` cli. It addresses most of your daily GitHub workflow, if not all of it: `f` stands for filter, fzf or fomething felse.
 
 ## Installation
 ```
@@ -54,6 +54,7 @@ takes one of the following arguments or flags
 | -l,logs      | select commits and show diff              | enter: show selected commit diff
 | -s,search    | search issues in any repository           | interactive prompt: follow instructions
 | -m,myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
+| -k,pick      | cherrypick files between branches         | enter: checkout cherrypicked files from branch
 | -h,help      | show help page                            |
 | -V,version   | print the current version                 |
 
