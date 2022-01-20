@@ -64,10 +64,6 @@ USAGE
 
 CUSTOMISATION
 
-  Set gh alias to avoid typing gh f [cmd] all the times, for instance:
-
-    gh set alias prs --shell `gh f -p`
-
   The prompt colours are defined via their ANSI sequences: if you like different ones you
   may change them yourself in the source code.
 
