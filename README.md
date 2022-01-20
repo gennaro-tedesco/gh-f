@@ -37,7 +37,10 @@ Get started!
 ```
 gh f
 ```
-shows the help page.
+shows the help page. Or watch it in action:
+
+[![asciicast](https://asciinema.org/a/EmYMmhOAn0dWAyBYrNqKk5AlR.svg)](https://asciinema.org/a/EmYMmhOAn0dWAyBYrNqKk5AlR)
+
 ```
 gh f [cmd]
 ```
