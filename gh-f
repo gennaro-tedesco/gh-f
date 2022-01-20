@@ -27,7 +27,7 @@ COMMANDS
 USAGE
   gh f -r | gh f runs
 
-	enter: search the logs
+	enter: search the selected run logs
 
   gh f -p | gh f prs
 
