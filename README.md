@@ -54,6 +54,7 @@ takes one of the following arguments or flags
 | -l,logs      | select commits and show diff              | enter: show selected commit diff
 | -s,search    | search issues in any repository           | interactive prompt: follow instructions
 | -m,myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
+| -k,pick      | cherrypick files between branches         | enter: checkout cherrypicked files from branch
 | -h,help      | show help page                            |
 | -V,version   | print the current version                 |
 
