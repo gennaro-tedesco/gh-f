@@ -30,7 +30,7 @@ gh extension install gennaro-tedesco/gh-f
 ### Requirements
 - fzf
 - [gnu core utils](https://www.gnu.org/software/coreutils/)
-- [bat](https://github.com/sharkdp/bat) (optional, if not detected it uses `less` as pager)
+- [bat](https://github.com/sharkdp/bat) (optional, if not detected it uses `less` as a pager, instead)
 
 ## Usage
 Get started!
@@ -46,11 +46,8 @@ takes one of the following arguments or flags
 | command      | description                               | binds
 |:------------ |:----------------------------------------- |:------
 | -r,runs      | show github workflow runs and filter logs | enter: search run logs
-| -p,prs       | view, diff and checkout PR                | enter: checkout the selected PR
-|              |                                           | ctrl-d: diff the selected PR
-|              |                                           | ctrl-v: view the selected PR
-| -b,branches  | checkout and diff branches                | enter: checkout the selected branch
-|              |                                           | ctrl-d: diff the selected PR
+| -p,prs       | view, diff and checkout PR                | enter: checkout the selected PR<br>ctrl-d: diff the selected PR<br>ctrl-v: view the selected PR
+| -b,branches  | checkout and diff branches                | enter: checkout the selected branch<br>ctrl-d: diff the selected PR
 | -l,logs      | select commits and show diff              | enter: show selected commit diff
 | -s,search    | search issues in any repository           | interactive prompt: follow instructions
 | -m,myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
