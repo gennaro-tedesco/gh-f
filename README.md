@@ -43,12 +43,12 @@ takes one of the following argument or flags
 
 | command      | description                               | binds
 |:------------ |:----------------------------------------- |:------
-| -r|runs      | show github workflow runs and filter logs |
-| -p|prs       | view, diff and checkout PR                |
-| -b|branches  | checkout and diff branches                |
-| -l|logs      | select commits and show diff              |
-| -s|search    | search issues in any repository           |
-| -m|myissue   | search issues you opened somewhere        |
-| -h|help      | show help page                            |
-| -V|version   | print the current version                 |
+| -r,runs      | show github workflow runs and filter logs |
+| -p,prs       | view, diff and checkout PR                |
+| -b,branches  | checkout and diff branches                |
+| -l,logs      | select commits and show diff              |
+| -s,search    | search issues in any repository           |
+| -m,myissue   | search issues you opened somewhere        |
+| -h,help      | show help page                            |
+| -V,version   | print the current version                 |
 
