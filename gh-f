@@ -21,6 +21,7 @@ COMMANDS
   -l|logs: select commits and show diff
   -s|search: search issues in any repository
   -m|myissue: search issues you opened somewhere
+  -k|pick: cherrypick files from one branch to the other
   -h|help: show this help message
   -V|version: show the current version
 
@@ -53,16 +54,26 @@ USAGE
 
   	prompt for repository name
 	enter: view selected issue
+
+  gh f -k | gh f pick
+
+  	prompt for branch and file to cherrypick
+	multi-file selection with tab
+	enter: confirm branch and pick files
 "
 	echo "$help_message" | $HELP_PAGER
 }
 
 is_remote() {
-	[[ ! $(git ls-remote --heads origin 2>/dev/null | wc -l | tr -s ' ') -eq 0 ]]
+	[ ! $(git ls-remote --heads origin 2>/dev/null | wc -l | tr -s ' ') -eq 0 ]
+}
+
+is_git_repo() {
+	[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]
 }
 
 runs() {
-	if ! is_remote; then { echo "no gh remote"; exit; }; fi
+	if ! is_remote; then { echo "no gh remote found"; exit; }; fi
 	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
 		'{print ID_COLOUR $7 "\033[0m"": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' | \
 		fzf \
@@ -73,6 +84,7 @@ runs() {
 }
 
 prs() {
+	if ! is_remote; then { echo "no gh remote found"; exit; }; fi
 	lines="$(gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
 		'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' | \
 		fzf \
@@ -92,6 +104,7 @@ prs() {
 }
 
 branches() {
+	if ! is_git_repo; then { echo "not a git repo"; exit; }; fi
 	lines="$(git branch -a | sed 's/[* ]//g' | \
 		fzf \
 			--prompt="branches: " \
@@ -109,6 +122,7 @@ branches() {
 }
 
 logs() {
+	if ! is_git_repo; then { echo "not a git repo"; exit; }; fi
 	commit="$(git log --oneline --color=always | \
 		fzf \
 			--ansi \
@@ -157,6 +171,19 @@ myissue() {
 	[[ -n $issue ]] && cut -f1 -d: <<< "$issue" | xargs -n1 gh issue view -R $repo -c
 }
 
+pick() {
+	if ! is_git_repo; then { echo "not a git repo"; exit; }; fi
+	from_branch=$(git branch | fzf --prompt="pick from branch: " | tr -d ' ')
+	[[ -n "$from_branch" ]] && files="$(git diff --name-only "$from_branch" | \
+			fzf \
+				--query=$1 \
+				--multi \
+				--select-1 \
+				--exit-0 \
+				--prompt="diff files: ")" || echo "no branch selected"
+
+	[[ -n ${files} ]] && git restore --source ${from_branch} ${files}
+}
 
 # print help page
 [[ "$#" -eq 0 ]] && help
@@ -170,6 +197,7 @@ while [[ "$#" -gt 0 ]]; do
 		-l|logs) logs; shift ;;
 		-s|search) search; shift ;;
 		-m|myissue) myissue; shift ;;
+		-k|pick) pick; shift ;;
 		-V|version) echo "$VERSION"; shift ;;
         *) help;
     esac

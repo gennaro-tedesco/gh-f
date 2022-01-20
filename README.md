@@ -21,7 +21,7 @@
   <a href="#Feedback">Feedback</a>
 </h3>
 
-`gh-f` is the ultimate, compact and snappy `fzf` extension for `gh` cli. It addresses most of your daily GitHub workflow, if not all of it: `f` stands for fuzzy, fzf or fomething felse.
+`gh-f` is the ultimate, compact and snappy `fzf` extension for `gh` cli. It addresses most of your daily GitHub workflow, if not all of it: `f` stands for filter, fzf or fomething felse.
 
 ## Installation
 ```
