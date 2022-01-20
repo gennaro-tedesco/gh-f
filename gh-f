@@ -2,6 +2,11 @@
 set -e
 
 VERSION="0.1.0"
+
+ID_COLOUR="\033[36m"
+TEXT_COLOUR="\033[34m"
+STATUS_COLOUR="\033[33m"
+SHELL_COLOUR="\033[0m"
 [[ -z $(command -v bat) ]] && HELP_PAGER="less" || HELP_PAGER="bat -l man -p"
 [[ -z $(command -v bat) ]] && LOG_PAGER="less" || LOG_PAGER="bat -l log -p"
 
@@ -15,6 +20,7 @@ COMMANDS
   -b|branches: checkout and diff branches
   -l|logs: select commits and show diff
   -s|search: search issues in any repository
+  -m|myissue: search issues you opened somewhere
   -h|help: show this help message
   -V|version: show the current version
 
@@ -43,6 +49,10 @@ USAGE
   	prompt for repository name and issue title
 	enter: view selected issue
 
+  gh f -m | gh f myissue
+
+  	prompt for repository name
+	enter: view selected issue
 "
 	echo "$help_message" | $HELP_PAGER
 }
@@ -53,7 +63,8 @@ is_remote() {
 
 runs() {
 	if ! is_remote; then { echo "no gh remote"; exit; }; fi
-	gh run list -L100 | awk -F'\t' '{print "\033[36m" $7 "\033[0m"": " "\033[35m" $4 "\033[0m"" - " "\033[33m" $2 "\033[0m"" - "$9}' | \
+	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+		'{print ID_COLOUR $7 "\033[0m"": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' | \
 		fzf \
 			--ansi --delimiter=: \
 			--prompt="runs logs: " \
@@ -62,7 +73,8 @@ runs() {
 }
 
 prs() {
-	lines="$(gh pr list -s"open" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3}' | \
+	lines="$(gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+		'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' | \
 		fzf \
 			--ansi --delimiter=: \
 			--prompt="open PRs: " \
@@ -113,7 +125,8 @@ search() {
 
 	if [[ -n $issue_list ]]
 	then
-		issue="$(echo "$issue_list" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3 "\033[0m"" - " "\033[33m" $2}' | \
+		issue="$(echo "$issue_list" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' | \
 			fzf \
 				--ansi \
 				--prompt="$search in $repo: ")"
@@ -128,10 +141,11 @@ search() {
 myissue() {
 	read -p "repository name: " repo; [[ -z $repo ]] && exit;
 	issue_list="$(gh issue list -s"all" -R "$repo" -A @me)"
-	
+
 	if [[ -n $issue_list ]]
 	then
-		issue="$(echo "$issue_list" | awk -F'\t' '{print "\033[36m" $1 "\033[0m"": " "\033[35m" $3 "\033[0m"" - " "\033[33m" $2}' | \
+		issue="$(echo "$issue_list" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' | \
 			fzf \
 				--ansi \
 				--prompt="my issues in $repo: ")"
