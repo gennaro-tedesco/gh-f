@@ -192,6 +192,7 @@ pick() {
 				--multi \
 				--select-1 \
 				--exit-0 \
+				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
 				--prompt="diff files: ")" || echo "no branch selected"
 
 	[[ -n ${files} ]] && git restore --source ${from_branch} ${files}
