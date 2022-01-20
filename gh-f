@@ -103,7 +103,7 @@ branches() {
 
 	case "$key" in
 		enter) [[ $branch == *"origin"* ]] && git checkout --track "$branch" || git checkout "$branch" ;;
-		ctrl-d) git diff "$id" ;;
+		ctrl-d) git diff "$branch" ;;
 	esac
 
 }
