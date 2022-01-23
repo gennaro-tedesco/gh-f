@@ -148,7 +148,7 @@ prs() {
 		fzf \
 			--ansi --delimiter=: \
 			--prompt="open PRs: " \
-			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}" \
+			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
 			--expect="enter,ctrl-d,ctrl-v")"
 
 	key="$(head -1 <<<"$lines")"
