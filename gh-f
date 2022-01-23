@@ -94,7 +94,7 @@ runs() {
 			--exit-0 \
 			--ansi --delimiter=: \
 			--prompt="runs logs: " \
-			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}" \
+			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
 
