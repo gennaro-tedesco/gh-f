@@ -145,8 +145,8 @@ logs() {
 }
 
 search() {
-	read -p "repository name: " repo; [[ -z $repo ]] && exit;
-	read -p "search: " search; [[ -z $search ]] && exit;
+	read -rp "repository name: " repo; [[ -z $repo ]] && exit;
+	read -rp "search: " search; [[ -z $search ]] && exit;
 	issue_list="$(gh issue list -s"all" -R $repo -L 300 -S"$search")"
 
 	if [[ -n $issue_list ]]
@@ -165,7 +165,7 @@ search() {
 }
 
 myissue() {
-	read -p "repository name: " repo; [[ -z $repo ]] && exit;
+	read -rp "repository name: " repo; [[ -z $repo ]] && exit;
 	issue_list="$(gh issue list -s"all" -R "$repo" -A @me)"
 
 	if [[ -n $issue_list ]]
