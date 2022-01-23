@@ -15,7 +15,8 @@ help() {
 gh f [cmd]
 
 COMMANDS
-  -r|run: show github workflow runs and filter logs
+  -a|adds: show status and add to staging area
+  -r|runs: show github workflow runs and filter logs
   -p|prs: view, diff and checkout PR
   -b|branches: checkout and diff branches
   -l|logs: select commits and show diff
@@ -26,6 +27,12 @@ COMMANDS
   -V|version: show the current version
 
 USAGE
+  gh f -a | gh f adds
+
+	multi-file selection with tab
+	enter: add selected files to staging area
+	ctrl-d: diff selected files
+
   gh f -r | gh f runs
 
 	enter: search the selected run logs
@@ -83,13 +90,46 @@ is_git_repo() {
 	[ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]
 }
 
+adds() {
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	status_list="$(git status -s | sed 's/^ //g')"
+
+	if [[ -n "$status_list" ]]; then
+		lines="$(
+			echo "$status_list" | awk -F' ' -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+				'{print STATUS_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $2}' |
+				fzf \
+					--exit-0 \
+					--ansi --delimiter=: \
+					--prompt="add files: " \
+					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {2}' \
+					--expect="enter,ctrl-d"
+		)"
+
+		key="$(head -1 <<<"$lines")"
+		files="$(sed 1d <<<"$lines" | cut -d: -f2)"
+
+		case "$key" in
+		enter) echo "$files" | xargs -n1 -t git add ;;
+		ctrl-d) git diff "$files" ;;
+		esac
+
+	else
+		echo "status unchanged"
+		exit
+	fi
+}
+
 runs() {
 	if ! is_remote; then {
 		echo "no gh remote found"
 		exit
 	}; fi
 	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-		'{print ID_COLOUR $7 "\033[0m"": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
+		'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
 		fzf \
 			--exit-0 \
 			--ansi --delimiter=: \
@@ -220,6 +260,10 @@ while [[ "$#" -gt 0 ]]; do
 	case $1 in
 	-h | --help | help)
 		help
+		shift
+		;;
+	-a | adds)
+		adds
 		shift
 		;;
 	-r | runs)
