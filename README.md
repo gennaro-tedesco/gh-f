@@ -59,7 +59,7 @@ takes one of the following arguments or flags
 | -h,help      | show help page                            |
 | -V,version   | print the current version                 |
 
-As you may notice most commands follow the semantics of `git` standard instructions (so that you can remember easily), only we append an `s` to avoid conflicts, should you have those commands lying around in the shell as aliases or for scripting.
+Most commands follow the semantics of `git` standard instructions (so that you can remember them easily), only we append an `s` to avoid conflicts, should you have those commands lying around in the shell as aliases or for scripting.
 
 ## Customisation
 If you want to skip typing `gh f` before each command you may alias it directly, for instance

@@ -15,7 +15,7 @@ help() {
 gh f [cmd]
 
 COMMANDS
-  -a|adds: show status and add to staging area
+  -a|adds: add to staging area
   -r|runs: show github workflow runs and filter logs
   -p|prs: view, diff and checkout PR
   -b|branches: checkout and diff branches
@@ -95,30 +95,30 @@ adds() {
 		echo "not a git repo"
 		exit
 	}; fi
-	status_list="$(git status -s | sed 's/^ //g')"
+	unstaged_list="$(git ls-files . --exclude-standard --others -m)"
 
-	if [[ -n "$status_list" ]]; then
+	if [[ -n "$unstaged_list" ]]; then
 		lines="$(
-			echo "$status_list" | awk -F' ' -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-				'{print STATUS_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $2}' |
+			echo "$unstaged_list" |
 				fzf \
 					--exit-0 \
 					--ansi --delimiter=: \
+					--multi \
 					--prompt="add files: " \
-					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {2}' \
+					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}' \
 					--expect="enter,ctrl-d"
 		)"
 
 		key="$(head -1 <<<"$lines")"
-		files="$(sed 1d <<<"$lines" | cut -d: -f2)"
+		files="$(sed 1d <<<"$lines" | cut -d: -f2 | tr -d ' ')"
 
 		case "$key" in
 		enter) echo "$files" | xargs -n1 -t git add ;;
-		ctrl-d) git diff "$files" ;;
+		ctrl-d) echo "$files" | xargs -n1 git diff ;;
 		esac
 
 	else
-		echo "status unchanged"
+		echo "no files to stage"
 		exit
 	fi
 }
