@@ -84,21 +84,27 @@ is_git_repo() {
 }
 
 runs() {
-	if ! is_remote; then { echo "no gh remote found"; exit; }; fi
+	if ! is_remote; then {
+		echo "no gh remote found"
+		exit
+	}; fi
 	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-		'{print ID_COLOUR $7 "\033[0m"": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' | \
+		'{print ID_COLOUR $7 "\033[0m"": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
 		fzf \
 			--exit-0 \
 			--ansi --delimiter=: \
 			--prompt="runs logs: " \
-			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}" \
+			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
 
 prs() {
-	if ! is_remote; then { echo "no gh remote found"; exit; }; fi
+	if ! is_remote; then {
+		echo "no gh remote found"
+		exit
+	}; fi
 	lines="$(gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-		'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' | \
+		'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
 		fzf \
 			--ansi --delimiter=: \
 			--prompt="open PRs: " \
@@ -109,15 +115,18 @@ prs() {
 	id="$(sed 1d <<<"$lines" | cut -d: -f1)"
 
 	case "$key" in
-		enter) gh pr checkout "$id" ;;
-		ctrl-v) gh pr view "$id" ;;
-		ctrl-d) gh pr diff "$id" ;;
+	enter) gh pr checkout "$id" ;;
+	ctrl-v) gh pr view "$id" ;;
+	ctrl-d) gh pr diff "$id" ;;
 	esac
 }
 
 branches() {
-	if ! is_git_repo; then { echo "not a git repo"; exit; }; fi
-	lines="$(git branch -a | sed 's/[* ]//g' | \
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	lines="$(git branch -a | sed 's/[* ]//g' |
 		fzf \
 			--prompt="branches: " \
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
@@ -127,15 +136,18 @@ branches() {
 	branch="$(sed '1d;s/remotes\///g' <<<"$lines")"
 
 	case "$key" in
-		enter) [[ $branch == *"origin"* ]] && git checkout --track "$branch" || git checkout "$branch" ;;
-		ctrl-d) git diff "$branch" ;;
+	enter) if [[ $branch == *"origin"* ]]; then git checkout --track "$branch"; else git checkout "$branch"; fi ;;
+	ctrl-d) git diff "$branch" ;;
 	esac
 
 }
 
 logs() {
-	if ! is_git_repo; then { echo "not a git repo"; exit; }; fi
-	commit="$(git log --oneline --color=always | \
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	commit="$(git log --oneline --color=always |
 		fzf \
 			--ansi \
 			--prompt="$(git branch --show-current): " \
@@ -145,14 +157,15 @@ logs() {
 }
 
 search() {
-	read -rp "repository name: " repo; [[ -z $repo ]] && exit;
-	read -rp "search: " search; [[ -z $search ]] && exit;
+	read -rp "repository name: " repo
+	[[ -z $repo ]] && exit
+	read -rp "search: " search
+	[[ -z $search ]] && exit
 	issue_list="$(gh issue list -s"all" -R "$repo" -L 300 -S"$search")"
 
-	if [[ -n $issue_list ]]
-	then
+	if [[ -n $issue_list ]]; then
 		issue="$(echo "$issue_list" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' | \
+			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
 			fzf \
 				--ansi \
 				--prompt="$search in $repo: ")"
@@ -165,13 +178,13 @@ search() {
 }
 
 myissue() {
-	read -rp "repository name: " repo; [[ -z $repo ]] && exit;
+	read -rp "repository name: " repo
+	[[ -z $repo ]] && exit
 	issue_list="$(gh issue list -s"all" -R "$repo" -A @me)"
 
-	if [[ -n $issue_list ]]
-	then
+	if [[ -n $issue_list ]]; then
 		issue="$(echo "$issue_list" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' | \
+			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
 			fzf \
 				--ansi \
 				--prompt="my issues in $repo: ")"
@@ -184,15 +197,18 @@ myissue() {
 }
 
 pick() {
-	if ! is_git_repo; then { echo "not a git repo"; exit; }; fi
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
 	from_branch=$(git branch | fzf --prompt="pick from branch: " | tr -d ' ')
-	[[ -n "$from_branch" ]] && files="$(git diff --name-only "$from_branch" | \
-			fzf \
-				--multi \
-				--select-1 \
-				--exit-0 \
-				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
-				--prompt="diff files: ")" || echo "no branch selected"
+	[[ -n "$from_branch" ]] && files="$(git diff --name-only "$from_branch" |
+		fzf \
+			--multi \
+			--select-1 \
+			--exit-0 \
+			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
+			--prompt="diff files: ")" || echo "no branch selected"
 
 	[[ -n ${files} ]] && git restore --source "${from_branch}" "${files}"
 }
@@ -201,18 +217,44 @@ pick() {
 [[ "$#" -eq 0 ]] && help
 
 while [[ "$#" -gt 0 ]]; do
-    case $1 in
-        -h|--help|help) help; shift ;;
-		-r|runs) runs; shift ;;
-		-p|prs) prs; shift ;;
-		-b|branches) branches; shift ;;
-		-l|logs) logs; shift ;;
-		-s|search) search; shift ;;
-		-m|myissue) myissue; shift ;;
-		-k|pick) pick; shift ;;
-		-V|version) echo "$VERSION"; shift ;;
-        *) help;
-    esac
-    shift
+	case $1 in
+	-h | --help | help)
+		help
+		shift
+		;;
+	-r | runs)
+		runs
+		shift
+		;;
+	-p | prs)
+		prs
+		shift
+		;;
+	-b | branches)
+		branches
+		shift
+		;;
+	-l | logs)
+		logs
+		shift
+		;;
+	-s | search)
+		search
+		shift
+		;;
+	-m | myissue)
+		myissue
+		shift
+		;;
+	-k | pick)
+		pick
+		shift
+		;;
+	-V | version)
+		echo "$VERSION"
+		shift
+		;;
+	*) help ;;
+	esac
+	shift
 done
-
