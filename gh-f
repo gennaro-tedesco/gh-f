@@ -105,8 +105,8 @@ prs() {
 			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}" \
 			--expect="enter,ctrl-d,ctrl-v")"
 
-	key="$(head -1 <<< "$lines")"
-	id="$(sed 1d <<< "$lines" | cut -d: -f1)"
+	key="$(head -1 <<<"$lines")"
+	id="$(sed 1d <<<"$lines" | cut -d: -f1)"
 
 	case "$key" in
 		enter) gh pr checkout "$id" ;;
@@ -123,8 +123,8 @@ branches() {
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
 			--expect "enter,ctrl-d")"
 
-	key="$(head -1 <<< "$lines")"
-	branch="$(sed '1d;s/remotes\///g' <<< "$lines")"
+	key="$(head -1 <<<"$lines")"
+	branch="$(sed '1d;s/remotes\///g' <<<"$lines")"
 
 	case "$key" in
 		enter) [[ $branch == *"origin"* ]] && git checkout --track "$branch" || git checkout "$branch" ;;
@@ -141,13 +141,13 @@ logs() {
 			--prompt="$(git branch --show-current): " \
 			--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always")"
 
-	[[ -n ${commit} ]] && cut -f1 -d' ' <<< $commit | xargs -n1 git show
+	[[ -n ${commit} ]] && cut -f1 -d' ' <<<"$commit" | xargs -n1 git show
 }
 
 search() {
 	read -rp "repository name: " repo; [[ -z $repo ]] && exit;
 	read -rp "search: " search; [[ -z $search ]] && exit;
-	issue_list="$(gh issue list -s"all" -R $repo -L 300 -S"$search")"
+	issue_list="$(gh issue list -s"all" -R "$repo" -L 300 -S"$search")"
 
 	if [[ -n $issue_list ]]
 	then
@@ -161,7 +161,7 @@ search() {
 		exit
 	fi
 
-	[[ -n $issue ]] && cut -f1 -d: <<< "$issue" | xargs -n1 gh issue view -R $repo -c
+	[[ -n $issue ]] && cut -f1 -d: <<<"$issue" | xargs -n1 gh issue view -R "$repo" -c
 }
 
 myissue() {
@@ -180,7 +180,7 @@ myissue() {
 		exit
 	fi
 
-	[[ -n $issue ]] && cut -f1 -d: <<< "$issue" | xargs -n1 gh issue view -R $repo -c
+	[[ -n $issue ]] && cut -f1 -d: <<<"$issue" | xargs -n1 gh issue view -R "$repo" -c
 }
 
 pick() {
@@ -194,7 +194,7 @@ pick() {
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
 				--prompt="diff files: ")" || echo "no branch selected"
 
-	[[ -n ${files} ]] && git restore --source ${from_branch} ${files}
+	[[ -n ${files} ]] && git restore --source "${from_branch}" "${files}"
 }
 
 # print help page
