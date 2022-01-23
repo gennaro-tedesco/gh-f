@@ -76,7 +76,7 @@ CUSTOMISATION
 }
 
 is_remote() {
-	[ ! $(git ls-remote --heads origin 2>/dev/null | wc -l | tr -s ' ') -eq 0 ]
+	[ ! "$(git ls-remote --heads origin 2>/dev/null | wc -l | tr -s ' ')" -eq 0 ]
 }
 
 is_git_repo() {
@@ -91,7 +91,7 @@ runs() {
 			--exit-0 \
 			--ansi --delimiter=: \
 			--prompt="runs logs: " \
-			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
+			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}" \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
 
@@ -188,7 +188,6 @@ pick() {
 	from_branch=$(git branch | fzf --prompt="pick from branch: " | tr -d ' ')
 	[[ -n "$from_branch" ]] && files="$(git diff --name-only "$from_branch" | \
 			fzf \
-				--query=$1 \
 				--multi \
 				--select-1 \
 				--exit-0 \
