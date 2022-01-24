@@ -104,7 +104,7 @@ adds() {
 					--exit-0 \
 					--ansi --delimiter=: \
 					--multi \
-					--prompt="add files: " \
+					--prompt="add files:" \
 					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}' \
 					--expect="enter,ctrl-d"
 		)"
@@ -133,7 +133,7 @@ runs() {
 		fzf \
 			--exit-0 \
 			--ansi --delimiter=: \
-			--prompt="runs logs: " \
+			--prompt="runs logs:" \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
@@ -147,7 +147,7 @@ prs() {
 		'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
 		fzf \
 			--ansi --delimiter=: \
-			--prompt="open PRs: " \
+			--prompt="open PRs:" \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
 			--expect="enter,ctrl-d,ctrl-v")"
 
@@ -166,9 +166,9 @@ branches() {
 		echo "not a git repo"
 		exit
 	}; fi
-	lines="$(git branch -a | sed 's/[* ]//g' |
+	lines="$(git branch -a | sed 's/[* ]//g' | grep -v 'HEAD' |
 		fzf \
-			--prompt="branches: " \
+			--prompt="branches:" \
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
 			--expect "enter,ctrl-d")"
 
@@ -190,7 +190,7 @@ logs() {
 	commit="$(git log --oneline --color=always |
 		fzf \
 			--ansi \
-			--prompt="$(git branch --show-current): " \
+			--prompt="$(git branch --show-current):" \
 			--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always")"
 
 	[[ -n ${commit} ]] && cut -f1 -d' ' <<<"$commit" | xargs -n1 git show
@@ -208,7 +208,7 @@ search() {
 			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
 			fzf \
 				--ansi \
-				--prompt="$search in $repo: ")"
+				--prompt="$search in $repo:")"
 	else
 		echo "$search not found in $repo"
 		exit
@@ -227,7 +227,7 @@ myissue() {
 			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
 			fzf \
 				--ansi \
-				--prompt="my issues in $repo: ")"
+				--prompt="my issues in $repo:")"
 	else
 		echo "no issue found in $repo"
 		exit
@@ -241,14 +241,14 @@ pick() {
 		echo "not a git repo"
 		exit
 	}; fi
-	from_branch=$(git branch | fzf --prompt="pick from branch: " | tr -d ' ')
+	from_branch=$(git branch | fzf --prompt="pick from branch:" | tr -d ' ')
 	[[ -n "$from_branch" ]] && files="$(git diff --name-only "$from_branch" |
 		fzf \
 			--multi \
 			--select-1 \
 			--exit-0 \
 			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
-			--prompt="diff files: ")" || echo "no branch selected"
+			--prompt="diff files:")" || echo "no branch selected"
 
 	[[ -n ${files} ]] && git restore --source "${from_branch}" "${files}"
 }
