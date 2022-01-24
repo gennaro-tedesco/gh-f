@@ -8,7 +8,7 @@
   <a href="#" onclick="return false;">
     <img alt="PR" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat"/>
   </a>
-  <a href="https://github.com/gennaro-tedesco/stargazer/releases">
+  <a href="https://github.com/gennaro-tedesco/gh-f/releases">
     <img alt="releases" src="https://img.shields.io/github/release/gennaro-tedesco/gh-f"/>
   </a>
 </h2>
