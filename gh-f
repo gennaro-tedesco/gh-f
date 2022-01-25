@@ -170,14 +170,18 @@ branches() {
 		fzf \
 			--prompt="branches:" \
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
-			--expect "enter,ctrl-d")"
+			--expect "enter,ctrl-d,ctrl-x")"
 
 	key="$(head -1 <<<"$lines")"
 	branch="$(sed '1d;s/remotes\///g' <<<"$lines")"
 
 	case "$key" in
 	enter) if [[ $branch == *"origin"* ]]; then git checkout --track "$branch"; else git checkout "$branch"; fi ;;
-	ctrl-d) git diff "$branch" ;;
+	ctrl-d) echo "$branch <-> $(git branch --show-current)" && git diff "$branch" ;;
+	ctrl-x)
+		read -rp "Delete branch \"$branch\"? [y|n] "
+		if [[ $REPLY =~ ^[Yy]$ ]]; then git branch -d "$branch"; fi
+		;;
 	esac
 
 }
