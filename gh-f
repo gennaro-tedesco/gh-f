@@ -48,6 +48,7 @@ USAGE
 
 	enter: checkout the branch (track if remote)
 	ctrl-d: diff the branch
+	ctrl-x: delete the branch (prompt for confirmation)
 
   gh f -l | gh f logs
 

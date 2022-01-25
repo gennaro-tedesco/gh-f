@@ -48,10 +48,10 @@ takes one of the following arguments or flags
 
 | command      | description                               | binds
 |:------------ |:----------------------------------------- |:------
-| -a,adds      | add files to staging area                 | enter: add files to staging area<br>ctrl-d: diff the selected file
+| -a,adds      | add files to staging area                 | enter: add files to staging area<br>ctrl-d: diff selected file
 | -r,runs      | show github workflow runs and filter logs | enter: search run logs
-| -p,prs       | view, diff and checkout PR                | enter: checkout the selected PR<br>ctrl-d: diff the selected PR<br>ctrl-v: view the selected PR
-| -b,branches  | checkout and diff branches                | enter: checkout the selected branch<br>ctrl-d: diff the selected PR
+| -p,prs       | view, diff and checkout PR                | enter: checkout selected PR<br>ctrl-d: diff selected PR<br>ctrl-v: view selected PR
+| -b,branches  | checkout and diff branches                | enter: checkout selected branch<br>ctrl-d: diff selected branch<br>ctrl-x: delete selected branch
 | -l,logs      | select commits and show diff              | enter: show selected commit diff
 | -s,search    | search issues in any repository           | interactive prompt: follow instructions
 | -m,myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
