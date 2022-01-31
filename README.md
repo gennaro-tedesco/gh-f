@@ -75,4 +75,4 @@ If you find this application useful consider awarding it a ⭐, it is a great wa
 
 See also the complete family of extensions
 - [gh-s](https://github.com/gennaro-tedesco/gh-s) to search for repositories with interactive prompt
-- [gh-i](https://github.com/gennaro-tedesco/gh-f) to search for github issues with interactive prompt
+- [gh-i](https://github.com/gennaro-tedesco/gh-i) to search for github issues with interactive prompt
