@@ -73,4 +73,6 @@ The prompt colours are defined via their ANSI sequences [here](https://github.co
 ## Feedback
 If you find this application useful consider awarding it a ⭐, it is a great way to give feedback! Otherwise, any additional suggestions or merge request is warmly welcome!
 
-See also a companion extension to interactively search for repositories and github content: [gh-s](https://github.com/gennaro-tedesco/gh-s).
+See also the complete family of extensions
+- [gh-s](https://github.com/gennaro-tedesco/gh-s) to search for repositories with interactive prompt
+- [gh-i](https://github.com/gennaro-tedesco/gh-f) to search for github issues with interactive prompt
