@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="0.1.4"
+VERSION="0.1.5"
 
 ID_COLOUR="\033[36m"
 TEXT_COLOUR="\033[34m"
