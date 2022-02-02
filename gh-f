@@ -67,6 +67,7 @@ USAGE
   gh f -k | gh f pick
 
   	prompt for branch and file to cherrypick
+	only show files that are present on both branches
 	multi-file selection with tab
 	enter: confirm branch and pick files
 
@@ -247,7 +248,7 @@ pick() {
 		exit
 	}; fi
 	from_branch=$(git branch | fzf --prompt="pick from branch:" | tr -d ' ')
-	[[ -n "$from_branch" ]] && files="$(git diff --name-only "$from_branch" |
+	[[ -n "$from_branch" ]] && files="$(git diff --name-only --diff-filter=M "$from_branch" |
 		fzf \
 			--multi \
 			--select-1 \
@@ -255,7 +256,7 @@ pick() {
 			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
 			--prompt="diff files:")" || echo "no branch selected"
 
-	[[ -n ${files} ]] && git restore --source "${from_branch}" "${files}"
+	[[ -n ${files} ]] && git restore --source "${from_branch}" ${files}
 }
 
 # print help page
