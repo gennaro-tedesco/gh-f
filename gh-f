@@ -193,7 +193,7 @@ logs() {
 		echo "not a git repo"
 		exit
 	}; fi
-	commit="$(git log --oneline --color=always |
+	commit="$(git log --oneline --color=always "$@" |
 		fzf \
 			--ansi \
 			--prompt="$(git branch --show-current):" \
@@ -285,7 +285,8 @@ while [[ "$#" -gt 0 ]]; do
 		shift
 		;;
 	-l | logs)
-		logs
+		shift
+		logs "$@"
 		shift
 		;;
 	-s | search)
