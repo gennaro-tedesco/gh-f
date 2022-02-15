@@ -52,6 +52,7 @@ USAGE
 
   gh f -l | gh f logs
 
+	file names can be passed as positional arguments
   	enter: show selected commit diff
 
   gh f -s | gh f search
