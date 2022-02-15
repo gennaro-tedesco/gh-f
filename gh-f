@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="gh-f 0.1.6"
+VERSION="gh-f 0.1.7"
 
 ID_COLOUR="\033[36m"
 TEXT_COLOUR="\033[34m"
@@ -52,7 +52,7 @@ USAGE
 
   gh f -l | gh f logs
 
-	file names can be passed as positional arguments
+	file paths can be passed as positional arguments
   	enter: show selected commit diff
 
   gh f -s | gh f search
