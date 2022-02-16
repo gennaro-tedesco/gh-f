@@ -20,6 +20,7 @@ COMMANDS
   -p|prs: view, diff and checkout PR
   -b|branches: checkout and diff branches
   -l|logs: select commits and show diff
+  -t|tags: checkout and diff version tags
   -s|search: search issues in any repository
   -m|myissue: search issues you opened somewhere
   -k|pick: cherrypick files from one branch to the other
@@ -54,6 +55,11 @@ USAGE
 
 	file paths can be passed as positional arguments
   	enter: show selected commit diff
+
+  gh f -t | gh f tags
+
+  	enter: checkout the tag in detached HEAD state
+	ctrl-d: diff the tag against current branch
 
   gh f -s | gh f search
 
@@ -209,7 +215,7 @@ tags() {
 		exit
 	}; fi
 	lines="$(
-		git tag -l -n | awk -F' {2,}' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" '{print ID_COLOUR $1" - " TEXT_COLOUR $2}' |
+		git tag -l -n | awk -F' {2,}' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1 SHELL_COLOUR" - " TEXT_COLOUR $2}' |
 			fzf \
 				--exit-0 \
 				--ansi --delimiter=- \
