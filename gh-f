@@ -203,6 +203,30 @@ logs() {
 	[[ -n ${commit} ]] && cut -f1 -d' ' <<<"$commit" | xargs -n1 git show
 }
 
+tags() {
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	lines="$(
+		git tag -l -n | awk -F' {2,}' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" '{print ID_COLOUR $1" - " TEXT_COLOUR $2}' |
+			fzf \
+				--exit-0 \
+				--ansi --delimiter=- \
+				--prompt="tags:" \
+				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1} 2>/dev/null" \
+				--expect="enter,ctrl-d"
+	)"
+
+	key="$(head -1 <<<"$lines")"
+	tags="$(sed 1d <<<"$lines" | cut -d '-' -f1)"
+
+	case "$key" in
+	enter) echo "$tags" ;;
+	ctrl-d) echo "$tags" ;;
+	esac
+}
+
 search() {
 	read -rp "repository name: " repo
 	[[ -z $repo ]] && exit
@@ -288,6 +312,10 @@ while [[ "$#" -gt 0 ]]; do
 	-l | logs)
 		shift
 		logs "$@"
+		shift
+		;;
+	-t | tags)
+		tags
 		shift
 		;;
 	-s | search)
