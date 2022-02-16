@@ -219,11 +219,11 @@ tags() {
 	)"
 
 	key="$(head -1 <<<"$lines")"
-	tags="$(sed 1d <<<"$lines" | cut -d '-' -f1)"
+	tag="$(sed 1d <<<"$lines" | cut -d '-' -f1 | tr -d ' ')"
 
 	case "$key" in
-	enter) echo "$tags" ;;
-	ctrl-d) echo "$tags" ;;
+	enter) git checkout tags/"$tag" ;;
+	ctrl-d) git diff "$tag" ;;
 	esac
 }
 
