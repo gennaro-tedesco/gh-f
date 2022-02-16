@@ -53,6 +53,7 @@ takes one of the following arguments or flags
 | -p,prs       | view, diff and checkout PR                | enter: checkout selected PR<br>ctrl-d: diff selected PR<br>ctrl-v: view selected PR
 | -b,branches  | checkout and diff branches                | enter: checkout selected branch<br>ctrl-d: diff selected branch<br>ctrl-x: delete selected branch
 | -l,logs      | select commits and show diff              | enter: show selected commit diff
+| -t,tags      | checkout and diff version tags            | enter: checkout tag in detached HEAD<br>ctrl-d diff against current branch
 | -s,search    | search issues in any repository           | interactive prompt: follow instructions
 | -m,myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
 | -k,pick      | cherrypick files between branches         | enter: checkout cherrypicked files from branch
@@ -64,7 +65,8 @@ Most commands follow the semantics of `git` standard instructions (so that you c
 ## Customisation
 If you want to skip typing `gh f` before each command you may alias it directly, for instance
 ```
-gh set alias prs --shell `gh f -p`
+gh set alias prs `f -p` # show PRs
+gh set alias l `f -l` # show git logs
 ```
 and likewise for the rest.
 
