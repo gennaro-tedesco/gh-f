@@ -140,15 +140,24 @@ greps() {
 	read -rp "search regex: " regex
 	[[ -z $regex ]] && exit
 
-	git_files="$(
-		git ls-files . --exclude-standard |
+	revision_files="$(
+		git rev-list --all | xargs git grep $regex | awk -F':' '{print $2}' | sort -u |
 			fzf \
+				--exit-0 \
 				--ansi \
-				--prompt="revision files:" \
-				--multi \
-				--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git log --oneline --color=always {1}'
+				--prompt="files containing '$regex' in revisions:" \
+				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}"
 	)"
-
+	[[ -n "$revision_files" ]] && revision="$(
+		git rev-list --all -- $revision_files | xargs -I {} git grep "$regex" {} -- $revision_files |
+			awk -F':' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1}' | sort -u |
+			fzf \
+				--exit-0 \
+				--ansi \
+				--prompt="commits containing $regex in $revision_files:" \
+				--preview="git show {}:$revision_files | grep $regex --colour"
+	)"
+	[[ -n "$revision" ]] && git show "$revision":$revision_files
 }
 
 runs() {
