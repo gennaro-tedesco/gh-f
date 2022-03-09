@@ -157,7 +157,10 @@ greps() {
 				--prompt="commits containing $regex in $revision_files:" \
 				--preview="git show {}:$revision_files | grep -n  --color=always \"$regex\""
 	)"
-	[[ -n "$revision" ]] && git show "$revision":$revision_files
+	if [[ -n "$revision" ]]; then
+		printf 'commit: %s\nfile: %s\n' "$revision" "$revision_files"
+		git show "$revision":$revision_files
+	fi
 }
 
 runs() {
