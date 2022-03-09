@@ -132,6 +132,25 @@ adds() {
 	fi
 }
 
+greps() {
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	read -rp "search regex: " regex
+	[[ -z $regex ]] && exit
+
+	git_files="$(
+		git ls-files . --exclude-standard |
+			fzf \
+				--ansi \
+				--prompt="revision files:" \
+				--multi \
+				--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git log --oneline --color=always {1}'
+	)"
+
+}
+
 runs() {
 	if ! is_remote; then {
 		echo "no gh remote found"
@@ -301,6 +320,10 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 	-a | adds)
 		adds
+		shift
+		;;
+	-g | greps)
+		greps
 		shift
 		;;
 	-r | runs)
