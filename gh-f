@@ -140,6 +140,21 @@ adds() {
 	fi
 }
 
+runs() {
+	if ! is_remote; then {
+		echo "no gh remote found"
+		exit
+	}; fi
+	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+		'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
+		fzf \
+			--exit-0 \
+			--ansi --delimiter=: \
+			--prompt="runs logs:" \
+			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
+			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
+}
+
 greps() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
@@ -169,21 +184,6 @@ greps() {
 		printf 'commit: %s\nfile: %s\n' "$revision" "$revision_files"
 		git show "$revision":$revision_files
 	fi
-}
-
-runs() {
-	if ! is_remote; then {
-		echo "no gh remote found"
-		exit
-	}; fi
-	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-		'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
-		fzf \
-			--exit-0 \
-			--ansi --delimiter=: \
-			--prompt="runs logs:" \
-			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
-			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
 }
 
 prs() {
@@ -342,12 +342,12 @@ while [[ "$#" -gt 0 ]]; do
 		adds
 		shift
 		;;
-	-g | greps)
-		greps
-		shift
-		;;
 	-r | runs)
 		runs
+		shift
+		;;
+	-g | greps)
+		greps
 		shift
 		;;
 	-p | prs)
