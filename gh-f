@@ -155,7 +155,7 @@ greps() {
 				--exit-0 \
 				--ansi \
 				--prompt="commits containing $regex in $revision_files:" \
-				--preview="git show {}:$revision_files | grep \"$regex\""
+				--preview="git show {}:$revision_files | grep -n  --color=always \"$regex\""
 	)"
 	[[ -n "$revision" ]] && git show "$revision":$revision_files
 }
