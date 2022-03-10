@@ -50,6 +50,7 @@ takes one of the following arguments or flags
 |:------------ |:----------------------------------------- |:------
 | -a,adds      | add files to staging area                 | enter: add files to staging area<br>ctrl-d: diff selected file
 | -r,runs      | show github workflow runs and filter logs | enter: search run logs
+| -g,greps     | grep in files in revision history         | interactive prompt: insert regex, select files, show pattern in revision history
 | -p,prs       | view, diff and checkout PR                | enter: checkout selected PR<br>ctrl-d: diff selected PR<br>ctrl-v: view selected PR
 | -b,branches  | checkout and diff branches                | enter: checkout selected branch<br>ctrl-d: diff selected branch<br>ctrl-x: delete selected branch
 | -l,logs      | select commits and show diff              | enter: show selected commit diff

@@ -17,6 +17,7 @@ gh f [cmd]
 COMMANDS
   -a|adds: add to staging area
   -r|runs: show github workflow runs and filter logs
+  -g|greps: grep in files in revision history
   -p|prs: view, diff and checkout PR
   -b|branches: checkout and diff branches
   -l|logs: select commits and show diff
@@ -38,6 +39,13 @@ USAGE
 
 	enter: search the selected run logs
 	exits if no runs exist
+
+  gh f -g | gh f greps
+
+    prompt for regex pattern to grep
+    select files whose revisions contain pattern
+    show pattern in revision history
+	enter: show file at point in time of revision
 
   gh f -p | gh f prs
 
@@ -145,6 +153,37 @@ runs() {
 			--prompt="runs logs:" \
 			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
+}
+
+greps() {
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	read -rp "search regex: " regex
+	[[ -z $regex ]] && exit
+
+	revision_files="$(
+		git rev-list --all | xargs git grep $regex | awk -F':' '{print $2}' | sort -u |
+			fzf \
+				--exit-0 \
+				--ansi \
+				--prompt="files containing '$regex' in revisions:" \
+				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}"
+	)"
+	[[ -n "$revision_files" ]] && revision="$(
+		git rev-list --all -- $revision_files | xargs -I {} git grep "$regex" {} -- $revision_files |
+			awk -F':' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1}' | sort -u |
+			fzf \
+				--exit-0 \
+				--ansi \
+				--prompt="commits containing $regex in $revision_files:" \
+				--preview="git show {}:$revision_files | grep -n  --color=always \"$regex\""
+	)"
+	if [[ -n "$revision" ]]; then
+		printf 'commit: %s\nfile: %s\n' "$revision" "$revision_files"
+		git show "$revision":$revision_files
+	fi
 }
 
 prs() {
@@ -305,6 +344,10 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 	-r | runs)
 		runs
+		shift
+		;;
+	-g | greps)
+		greps
 		shift
 		;;
 	-p | prs)
