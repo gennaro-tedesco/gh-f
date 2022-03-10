@@ -42,7 +42,7 @@ USAGE
 
   gh f -g | gh f greps
 
-    prompt for regex pattern to grep
+    prompt for pattern or pass regex as positional argument
     select files whose revisions contain pattern
     show pattern in revision history
 	enter: show file at point in time of revision
@@ -160,7 +160,11 @@ greps() {
 		echo "not a git repo"
 		exit
 	}; fi
-	read -rp "search regex: " regex
+	if [[ $# -eq 0 ]]; then
+		read -rp "search regex: " regex
+	else
+		regex=$1
+	fi
 	[[ -z $regex ]] && exit
 
 	revision_files="$(
@@ -181,8 +185,8 @@ greps() {
 				--preview="git show {}:$revision_files | grep -n  --color=always \"$regex\""
 	)"
 	if [[ -n "$revision" ]]; then
-		printf 'commit: %s\nfile: %s\n' "$revision" "$revision_files"
 		git show "$revision":$revision_files
+		printf '\ncommit: %s\nfile: %s\n' "$revision" "$revision_files"
 	fi
 }
 
@@ -347,7 +351,8 @@ while [[ "$#" -gt 0 ]]; do
 		shift
 		;;
 	-g | greps)
-		greps
+		shift
+		greps "$@"
 		shift
 		;;
 	-p | prs)
