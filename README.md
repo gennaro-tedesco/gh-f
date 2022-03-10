@@ -41,6 +41,10 @@ shows the help page. Or watch it in action:
 
 [![asciicast](https://asciinema.org/a/EmYMmhOAn0dWAyBYrNqKk5AlR.svg)](https://asciinema.org/a/EmYMmhOAn0dWAyBYrNqKk5AlR)
 
+or a quick replay
+
+![quick-demo](https://user-images.githubusercontent.com/15387611/157561174-d8bcfc81-0d12-4263-aeb9-19ba410ef40a.gif)
+
 ```
 gh f [cmd]
 ```
