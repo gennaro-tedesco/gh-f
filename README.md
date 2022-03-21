@@ -70,8 +70,8 @@ Most commands follow the semantics of `git` standard instructions (so that you c
 ## Customisation
 If you want to skip typing `gh f` before each command you may alias it directly, for instance
 ```
-gh set alias prs `f -p` # show PRs
-gh set alias l `f -l` # show git logs
+gh alias set prs 'f -p' # show PRs
+gh alias set l 'f -l' # show git logs
 ```
 and likewise for the rest.
 
