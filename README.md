@@ -75,7 +75,7 @@ gh alias set l 'f -l' # show git logs
 ```
 and likewise for the rest.
 
-The prompt colours are defined via their ANSI sequences [here](https://github.com/gennaro-tedesco/gh-f/blob/37157bb30c2bceb99a5c9d6d199c543ce347690f/gh-f#L6-L9): change yourself accordingly, if you like different ones.
+The prompt colours are defined via their ANSI sequences [here](https://github.com/gennaro-tedesco/gh-f/blob/37157bb30c2bceb99a5c9d6d199c543ce347690f/gh-f#L6-L9): change yourself accordingly, if you like different ones. Moreover notice that the rendering of text in the `fzf` preview window follows the options set in the `FZF_DEFAULT_OPTS` [env variable](https://github.com/junegunn/fzf#environment-variables): if you want to replicate exactly what is shown in the demo, [here](https://github.com/gennaro-tedesco/dotfiles/blob/132eeec7d9573ca3ccd47a078d19029b75010b2b/zsh/zshrc#L43) are my settings.
 
 ## Feedback
 If you find this application useful consider awarding it a ⭐, it is a great way to give feedback! Otherwise, any additional suggestions or merge request is warmly welcome!
