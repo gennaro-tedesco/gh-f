@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="gh-f 0.3.1"
+VERSION="gh-f 0.3.2"
 
 ID_COLOUR="\033[36m"
 TEXT_COLOUR="\033[34m"
@@ -232,7 +232,7 @@ branches() {
 	ctrl-d) echo "$branch <-> $(git branch --show-current)" && git diff "$branch" ;;
 	ctrl-x)
 		read -rp "Delete branch \"$branch\"? [y|n] "
-		if [[ $REPLY =~ ^[Yy]$ ]]; then git branch -d "$branch"; fi
+		if [[ $REPLY =~ ^[Yy]$ ]]; then git branch -D "$branch"; fi
 		;;
 	esac
 
