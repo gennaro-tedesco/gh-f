@@ -25,6 +25,7 @@ COMMANDS
   -s|search: search issues in any repository
   -m|myissue: search issues you opened somewhere
   -k|pick: cherrypick files from one branch to the other
+  -e|envs: show git config list
   -h|help: show this help message
   -V|version: show the current version
 
@@ -85,6 +86,11 @@ USAGE
 	only show files that are present on both branches
 	multi-file selection with tab
 	enter: confirm branch and pick files
+
+  gh f -e | gh f envs
+
+  	show git config --list of environment variables
+	for the current git project
 
 CUSTOMISATION
 
@@ -333,6 +339,11 @@ pick() {
 	[[ -n ${files} ]] && git restore --source "${from_branch}" ${files}
 }
 
+envs() {
+	config_var=$(git config --list | cut -d= -f1 | fzf -d' ' --prompt 'config list:' --preview='git config {}')
+	[[ -n "$config_var" ]] && git config "$config_var"
+}
+
 # print help page
 [[ "$#" -eq 0 ]] && help
 
@@ -382,6 +393,10 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 	-k | pick)
 		pick
+		shift
+		;;
+	-e | envs)
+		envs
 		shift
 		;;
 	-V | version)
