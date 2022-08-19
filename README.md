@@ -62,6 +62,7 @@ takes one of the following arguments or flags
 | -s,search    | search issues in any repository           | interactive prompt: follow instructions
 | -m,myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
 | -k,pick      | cherrypick files between branches         | enter: checkout cherrypicked files from branch
+| -e,envs      | show git config list                      | enter: print selected config variable
 | -h,help      | show help page                            |
 | -V,version   | print the current version                 |
 
