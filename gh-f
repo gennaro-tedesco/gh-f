@@ -18,7 +18,7 @@ COMMANDS
   -a|adds: add to staging area
   -r|runs: show github workflow runs and filter logs
   -g|greps: grep in files in revision history
-  -p|prs: view, diff and checkout PR
+  -p|prs: view, diff and checkout open PR
   -b|branches: checkout and diff branches
   -l|logs: select commits and show diff
   -t|tags: checkout and diff version tags
@@ -49,6 +49,8 @@ USAGE
 	enter: show file at point in time of revision
 
   gh f -p | gh f prs
+
+    manage open PRs
 
 	enter: checkout the PR
 	ctrl-d: diff the PR
@@ -201,22 +203,32 @@ prs() {
 		echo "no gh remote found"
 		exit
 	}; fi
-	lines="$(gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-		'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
-		fzf -d' ' \
-			--ansi --delimiter=: \
-			--prompt="open PRs:" \
-			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
-			--expect="enter,ctrl-d,ctrl-v")"
+	open_prs="$(gh pr list -s"open")"
 
-	key="$(head -1 <<<"$lines")"
-	id="$(sed 1d <<<"$lines" | cut -d: -f1)"
+	if [[ -n "$open_prs" ]]; then
 
-	case "$key" in
-	enter) gh pr checkout "$id" ;;
-	ctrl-v) gh pr view "$id" ;;
-	ctrl-d) gh pr diff "$id" ;;
-	esac
+		lines="$(gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
+			fzf -d' ' \
+				--exit-0 \
+				--ansi --delimiter=: \
+				--prompt="open PRs:" \
+				--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
+				--expect="enter,ctrl-d,ctrl-v")"
+
+		key="$(head -1 <<<"$lines")"
+		id="$(sed 1d <<<"$lines" | cut -d: -f1)"
+
+		case "$key" in
+		enter) gh pr checkout "$id" ;;
+		ctrl-v) gh pr view "$id" ;;
+		ctrl-d) gh pr diff "$id" ;;
+		esac
+
+	else
+		echo "no open PRs"
+		exit
+	fi
 }
 
 branches() {
@@ -224,7 +236,7 @@ branches() {
 		echo "not a git repo"
 		exit
 	}; fi
-	lines="$(git branch -a | sed 's/[* ]//g' | grep -v 'HEAD' |
+	lines="$(git branch -a --sort=-committerdate | sed 's/[* ]//g' | grep -v 'HEAD' |
 		fzf -d' ' \
 			--prompt="branches:" \
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
