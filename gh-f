@@ -276,7 +276,7 @@ tags() {
 		exit
 	}; fi
 	lines="$(
-		git tag -l -n | awk -F' {2,}' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1 SHELL_COLOUR" - " TEXT_COLOUR $2}' |
+		git tag -l -n --sort=-version:refname | awk -F' {2,}' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1 SHELL_COLOUR" - " TEXT_COLOUR $2}' |
 			fzf -d' ' \
 				--exit-0 \
 				--ansi --delimiter=- \
