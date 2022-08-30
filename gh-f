@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-VERSION="gh-f 0.3.5"
+VERSION="gh-f 0.3.6"
 
 ID_COLOUR="\033[36m"
 TEXT_COLOUR="\033[34m"
