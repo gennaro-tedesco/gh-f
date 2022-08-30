@@ -236,7 +236,7 @@ branches() {
 		echo "not a git repo"
 		exit
 	}; fi
-	lines="$(git branch -a | sed 's/[* ]//g' | grep -v 'HEAD' |
+	lines="$(git branch -a --sort=-committerdate | sed 's/[* ]//g' | grep -v 'HEAD' |
 		fzf -d' ' \
 			--prompt="branches:" \
 			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
