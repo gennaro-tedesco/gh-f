@@ -171,31 +171,33 @@ greps() {
 	if [[ $# -eq 0 ]]; then
 		read -rp "search regex: " regex
 	else
-		regex=$1
+		regex="$*"
 	fi
-	[[ -z $regex ]] && exit
+	[[ -z "$regex" ]] && exit
 
-	revision_files="$(
-		git rev-list --all | xargs git grep $regex | awk -F':' '{print $2}' | sort -u |
+	revision_files="$(git rev-list --all | xargs git grep "$regex" | awk -F':' '{print $2}' | sort -u)"
+	[[ -z "$revision_files" ]] && {
+		echo "no files containing $regex"
+		return
+	}
+	selected_file="$(
+		echo "$revision_files" |
+			fzf -d' ' \
+				--ansi \
+				--prompt="files containing '$regex' in revisions:"
+	)"
+
+	revision="$(
+		git rev-list --all --date-order -- $selected_file | xargs -I {} git grep "$regex" {} -- $selected_file |
+			awk -F':' -v ID_COLOUR="$ID_COLOUR" '{print ID_COLOUR $1}' | uniq |
 			fzf -d' ' \
 				--exit-0 \
 				--ansi \
-				--prompt="files containing '$regex' in revisions:" \
-				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}"
+				--prompt="commits containing $regex in $selected_file:" \
+				--preview="git show {}:$selected_file | grep -n -C1 --color=always \"$regex\""
 	)"
-	[[ -n "$revision_files" ]] && revision="$(
-		git rev-list --all -- $revision_files | xargs -I {} git grep "$regex" {} -- $revision_files |
-			awk -F':' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1}' | sort -u |
-			fzf -d' ' \
-				--exit-0 \
-				--ansi \
-				--prompt="commits containing $regex in $revision_files:" \
-				--preview="git show {}:$revision_files | grep -n  --color=always \"$regex\""
-	)"
-	if [[ -n "$revision" ]]; then
-		git show "$revision":$revision_files
-		printf '\ncommit: %s\nfile: %s\n' "$revision" "$revision_files"
-	fi
+	git show "$revision":$selected_file
+	printf '\ncommit: %s\nfile: %s\n' "$revision" "$selected_file"
 }
 
 prs() {
