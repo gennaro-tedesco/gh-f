@@ -189,16 +189,16 @@ greps() {
 	)"
 
 	revision="$(
-		git rev-list --all -- $selected_file | xargs -I {} git grep "$regex" {} -- $selected_file |
-			awk -F':' -v ID_COLOUR="$ID_COLOUR" '{print ID_COLOUR $1}' | sort -u |
+		git rev-list --all --date-order -- $selected_file | xargs -I {} git grep "$regex" {} -- $selected_file |
+			awk -F':' -v ID_COLOUR="$ID_COLOUR" '{print ID_COLOUR $1}' | uniq |
 			fzf -d' ' \
 				--exit-0 \
 				--ansi \
 				--prompt="commits containing $regex in $selected_file:" \
-				--preview="git show {}:$selected_file | grep -n  --color=always \"$regex\""
+				--preview="git show {}:$selected_file | grep -n -C1 --color=always \"$regex\""
 	)"
 	git show "$revision":$selected_file
-	printf '\ncommit: %s\nfile: %s\n' "$revision" "$revision_files"
+	printf '\ncommit: %s\nfile: %s\n' "$revision" "$selected_file"
 }
 
 prs() {
