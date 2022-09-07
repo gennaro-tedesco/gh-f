@@ -184,8 +184,7 @@ greps() {
 		echo "$revision_files" |
 			fzf -d' ' \
 				--ansi \
-				--prompt="files containing '$regex' in revisions:" \
-				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}"
+				--prompt="files containing '$regex' in revisions:"
 	)"
 
 	revision="$(
