@@ -274,7 +274,7 @@ logs() {
 	)"
 
 	key="$(head -1 <<<"$lines")"
-	commit="$(sed 1d <<<"$lines" | cut -d '-' -f1 | tr -d ' ')"
+	commit="$(sed 1d <<<"$lines" | cut -d ' ' -f1 | tr -d ' ')"
 
 	case "$key" in
 	enter) git show "$commit" ;;
@@ -298,7 +298,7 @@ tags() {
 	)"
 
 	key="$(head -1 <<<"$lines")"
-	tag="$(sed 1d <<<"$lines" | cut -d '-' -f1 | tr -d ' ')"
+	tag="$(sed 1d <<<"$lines" | cut -d ' ' -f1)"
 
 	case "$key" in
 	enter) git checkout tags/"$tag" ;;
