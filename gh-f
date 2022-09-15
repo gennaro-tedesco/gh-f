@@ -269,7 +269,7 @@ logs() {
 			fzf -d' ' \
 				--ansi \
 				--prompt="$(git branch --show-current):" \
-				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always"
+				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always" \
 				--expect="enter,ctrl-k"
 	)"
 
