@@ -66,6 +66,7 @@ USAGE
 
 	file paths can be passed as positional arguments
   	enter: show selected commit diff
+  	ctrl-k: checkout selected commit
 
   gh f -t | gh f tags
 
@@ -263,13 +264,22 @@ logs() {
 		echo "not a git repo"
 		exit
 	}; fi
-	commit="$(git log --oneline --color=always "$@" |
-		fzf -d' ' \
-			--ansi \
-			--prompt="$(git branch --show-current):" \
-			--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always")"
+	lines="$(
+		git log --oneline --color=always "$@" |
+			fzf -d' ' \
+				--ansi \
+				--prompt="$(git branch --show-current):" \
+				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always"
+				--expect="enter,ctrl-k"
+	)"
 
-	[[ -n ${commit} ]] && cut -f1 -d' ' <<<"$commit" | xargs -n1 git show
+	key="$(head -1 <<<"$lines")"
+	commit="$(sed 1d <<<"$lines" | cut -d '-' -f1 | tr -d ' ')"
+
+	case "$key" in
+	enter) git show "$commit" ;;
+	ctrl-k) git checkout "$commit" ;;
+	esac
 }
 
 tags() {
