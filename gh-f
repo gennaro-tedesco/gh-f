@@ -65,8 +65,9 @@ USAGE
   gh f -l | gh f logs
 
 	file paths can be passed as positional arguments
-  	enter: show selected commit diff
-  	ctrl-k: checkout selected commit
+  	enter: checkout selected commit
+	ctrl-d: diff selected commit against current branch
+	ctrl-v: view commit patch
 
   gh f -t | gh f tags
 
@@ -132,7 +133,10 @@ adds() {
 					--multi \
 					--prompt="add files:" \
 					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}' \
-					--expect="enter,ctrl-d"
+					--expect="enter,ctrl-d" \
+					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
+					--no-info
+
 		)"
 
 		key="$(head -1 <<<"$lines")"
@@ -210,22 +214,27 @@ prs() {
 
 	if [[ -n "$open_prs" ]]; then
 
-		lines="$(gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
-			fzf -d' ' \
-				--exit-0 \
-				--ansi --delimiter=: \
-				--prompt="open PRs:" \
-				--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
-				--expect="enter,ctrl-d,ctrl-v")"
+		lines="$(
+			gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+				'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
+				fzf -d' ' \
+					--exit-0 \
+					--ansi --delimiter=: \
+					--prompt="open PRs:" \
+					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
+					--expect="enter,ctrl-d,ctrl-v" \
+					--header=$'Enter: checkout PR, Ctrl-d: diff PR, Ctrl-v: view PR\n\n' \
+					--no-info
+
+		)"
 
 		key="$(head -1 <<<"$lines")"
 		id="$(sed 1d <<<"$lines" | cut -d: -f1)"
 
 		case "$key" in
 		enter) gh pr checkout "$id" ;;
-		ctrl-v) gh pr view "$id" ;;
 		ctrl-d) gh pr diff "$id" ;;
+		ctrl-v) gh pr view "$id" ;;
 		esac
 
 	else
@@ -239,11 +248,15 @@ branches() {
 		echo "not a git repo"
 		exit
 	}; fi
-	lines="$(git branch -a --sort=-committerdate | sed 's/[* ]//g' | grep -v 'HEAD' |
-		fzf -d' ' \
-			--prompt="branches:" \
-			--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
-			--expect "enter,ctrl-d,ctrl-x")"
+	lines="$(
+		git branch -a --sort=-committerdate | sed 's/[* ]//g' | grep -v 'HEAD' |
+			fzf -d' ' \
+				--prompt="branches:" \
+				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
+				--expect "enter,ctrl-d,ctrl-x" \
+				--header=$'Enter: checkout, Ctrl-d: diff branch, Ctrl-x: delete branch\n\n' \
+				--no-info
+	)"
 
 	key="$(head -1 <<<"$lines")"
 	branch="$(sed '1d;s/remotes\///g' <<<"$lines")"
@@ -270,15 +283,19 @@ logs() {
 				--ansi \
 				--prompt="$(git branch --show-current):" \
 				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always" \
-				--expect="enter,ctrl-k"
+				--expect="enter,ctrl-d,ctrl-v" \
+				--header=$'Enter: checkout commit, Ctrl-d: diff commit, Ctrl-v: view commit patch\n\n' \
+				--no-info
+
 	)"
 
 	key="$(head -1 <<<"$lines")"
 	commit="$(sed 1d <<<"$lines" | cut -d ' ' -f1 | tr -d ' ')"
 
 	case "$key" in
-	enter) git show "$commit" ;;
-	ctrl-k) git checkout "$commit" ;;
+	enter) git checkout "$commit" ;;
+	ctrl-d) git diff "$commit" ;;
+	ctrl-v) git show "$commit" ;;
 	esac
 }
 
@@ -294,7 +311,9 @@ tags() {
 				--ansi --delimiter=- \
 				--prompt="tags:" \
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1} 2>/dev/null" \
-				--expect="enter,ctrl-d"
+				--expect="enter,ctrl-d" \
+				--header=$'Enter: checkout tag, Ctrl-d: diff tag\n\n' \
+				--no-info
 	)"
 
 	key="$(head -1 <<<"$lines")"
@@ -351,7 +370,7 @@ pick() {
 		echo "not a git repo"
 		exit
 	}; fi
-	from_branch=$(git branch | fzf -d' ' --prompt="pick from branch:" | tr -d ' ')
+	from_branch=$(git branch | fzf -d' ' --prompt="pick from branch:" --no-info | tr -d ' ')
 	[[ -n "$from_branch" ]] && files="$(git diff --name-only --diff-filter=M "$from_branch" |
 		fzf -d' ' \
 			--multi \
@@ -364,7 +383,7 @@ pick() {
 }
 
 envs() {
-	config_var=$(git config --list | cut -d= -f1 | fzf -d' ' --prompt 'config list:' --preview='git config {}')
+	config_var=$(git config --list | cut -d= -f1 | fzf -d' ' --prompt 'config list:' --no-info --preview='git config {}')
 	[[ -n "$config_var" ]] && git config "$config_var"
 }
 
