@@ -284,7 +284,7 @@ logs() {
 				--prompt="$(git branch --show-current):" \
 				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always" \
 				--expect="enter,ctrl-d,ctrl-v" \
-				--header=$'Enter: checkout commit, Ctrl-d: diff commit, Ctrl-v: view commit patch\n\n' \
+				--header=$'Enter: checkout, Ctrl-d: diff, Ctrl-v: view commit patch\n\n' \
 				--no-info
 
 	)"
