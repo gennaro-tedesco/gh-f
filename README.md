@@ -57,7 +57,7 @@ takes one of the following arguments or flags
 | -g, greps     | grep in files in revision history         | interactive prompt: insert regex, select files, show pattern in revision history
 | -p, prs       | view, diff and checkout PR                | enter: checkout selected PR<br>ctrl-d: diff selected PR<br>ctrl-v: view selected PR
 | -b, branches  | checkout and diff branches                | enter: checkout selected branch<br>ctrl-d: diff selected branch<br>ctrl-x: delete selected branch
-| -l, logs      | select commits and show diff              | enter: show selected commit diff
+| -l, logs      | view, diff and checkout from logs history | enter: checkout selected commit<br>ctrl-d: diff selected commit<br>ctrl-v: view commit patch
 | -t, tags      | checkout and diff version tags            | enter: checkout tag in detached HEAD<br>ctrl-d diff against current branch
 | -s, search    | search issues in any repository           | interactive prompt: follow instructions
 | -m, myissue   | search issues you opened somewhere        | interactive prompt: follow instructions
