@@ -20,6 +20,7 @@ COMMANDS
   -g|greps: grep in files in revision history
   -p|prs: view, diff and checkout open PR
   -b|branches: checkout and diff branches
+  -d|diffs: diff files by extension
   -l|logs: select commits and show diff
   -t|tags: checkout and diff version tags
   -s|search: search issues in any repository
@@ -61,6 +62,11 @@ USAGE
 	enter: checkout the branch (track if remote)
 	ctrl-d: diff the branch
 	ctrl-x: delete the branch (prompt for confirmation)
+
+  gh f -d | gh f diffs
+
+	prompt file extension to select
+	show git diff of all files with said extension
 
   gh f -l | gh f logs
 
@@ -272,6 +278,24 @@ branches() {
 
 }
 
+diffs() {
+	if ! is_git_repo; then {
+		echo "not a git repo"
+		exit
+	}; fi
+	extension="$(
+		git diff --name-only | awk -F'.' '{print $NF}' | sort -u |
+			fzf -d' ' \
+				--no-info \
+				--select-1 \
+				--no-multi \
+				--exit-0 \
+				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- '*.{1}'" \
+				--prompt="select extension:"
+	)"
+	[[ -n $extension ]] && git diff -- "*.$extension"
+}
+
 logs() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
@@ -415,6 +439,10 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 	-b | branches)
 		branches
+		shift
+		;;
+	-d | diffs)
+		diffs
 		shift
 		;;
 	-l | logs)
