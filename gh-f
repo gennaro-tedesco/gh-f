@@ -47,7 +47,7 @@ USAGE
     prompt for pattern or pass regex as positional argument
     select files whose revisions contain pattern
     show pattern in revision history
-	enter: show file at point in time of revision
+    enter: show file at point in time of revision
 
   gh f -p | gh f prs
 
@@ -66,7 +66,9 @@ USAGE
   gh f -d | gh f diffs
 
 	prompt file extension to select
-	show git diff of all files with said extension
+	enter: add all files with selected extension
+	ctrl-d: diff all files with selected extension
+	ctrl-x: checkout all files with selected extension
 
   gh f -l | gh f logs
 
