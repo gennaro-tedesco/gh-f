@@ -138,7 +138,7 @@ adds() {
 					--ansi --delimiter=: \
 					--multi \
 					--prompt="add files:" \
-					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}' \
+					--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}" \
 					--expect="enter,ctrl-d" \
 					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
@@ -283,17 +283,26 @@ diffs() {
 		echo "not a git repo"
 		exit
 	}; fi
-	extension="$(
+	lines="$(
 		git diff --name-only | awk -F'.' '{print $NF}' | sort -u |
 			fzf -d' ' \
-				--no-info \
-				--select-1 \
 				--no-multi \
 				--exit-0 \
+				--prompt="select extension:" \
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- '*.{1}'" \
-				--prompt="select extension:"
+				--expect="enter,ctrl-d,ctrl-x" \
+				--header=$'Enter: add file(s), Ctrl-d: diff file(s), Ctrl-x: checkout file(s)\n\n' \
+				--no-info
 	)"
-	[[ -n $extension ]] && git diff -- "*.$extension"
+
+	key="$(head -1 <<<"$lines")"
+	extension="$(sed 1d <<<"$lines" | cut -d: -f2 | tr -d ' ')"
+
+	case "$key" in
+	enter) git diff --name-only | grep ".*\.$extension" | xargs -n 1 -t git add ;;
+	ctrl-d) git diff -- "*.$extension" ;;
+	ctrl-x) git diff --name-only | grep ".*\.$extension" | xargs -n 1 -t git checkout ;;
+	esac
 }
 
 logs() {
@@ -392,6 +401,10 @@ myissue() {
 pick() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
+		exit
+	}; fi
+	if [ "$(git branch | wc -l | tr -d ' ')" -eq 1 ]; then {
+		echo "no alternate branch to pick from"
 		exit
 	}; fi
 	from_branch=$(git branch | fzf -d' ' --prompt="pick from branch:" --no-info | tr -d ' ')
