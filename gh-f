@@ -138,7 +138,7 @@ adds() {
 					--ansi --delimiter=: \
 					--multi \
 					--prompt="add files:" \
-					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}' \
+					--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}" \
 					--expect="enter,ctrl-d" \
 					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
@@ -401,6 +401,10 @@ myissue() {
 pick() {
 	if ! is_git_repo; then {
 		echo "not a git repo"
+		exit
+	}; fi
+	if [ "$(git branch | wc -l | tr -d ' ')" -eq 1 ]; then {
+		echo "no alternate branch to pick from"
 		exit
 	}; fi
 	from_branch=$(git branch | fzf -d' ' --prompt="pick from branch:" --no-info | tr -d ' ')
