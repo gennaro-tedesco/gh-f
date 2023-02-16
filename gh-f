@@ -196,6 +196,7 @@ greps() {
 	selected_file="$(
 		echo "$revision_files" |
 			fzf -d' ' \
+				+s \
 				--ansi \
 				--prompt="files containing '$regex' in revisions:"
 	)"
@@ -204,6 +205,7 @@ greps() {
 		git rev-list --all --date-order -- $selected_file | xargs -I {} git grep "$regex" {} -- $selected_file |
 			awk -F':' -v ID_COLOUR="$ID_COLOUR" '{print ID_COLOUR $1}' | uniq |
 			fzf -d' ' \
+				+s \
 				--exit-0 \
 				--ansi \
 				--prompt="commits containing $regex in $selected_file:" \
@@ -315,6 +317,7 @@ logs() {
 	lines="$(
 		git log --oneline --color=always "$@" |
 			fzf -d' ' \
+				+s \
 				--ansi \
 				--prompt="$(git branch --show-current):" \
 				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always" \
