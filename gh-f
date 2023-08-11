@@ -225,7 +225,7 @@ prs() {
 	if [[ -n "$open_prs" ]]; then
 
 		lines="$(
-			gh pr list -s"open" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+			echo "$open_prs" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
 				'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3}' |
 				fzf -d' ' \
 					--exit-0 \
