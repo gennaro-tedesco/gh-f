@@ -343,10 +343,10 @@ tags() {
 		exit
 	}; fi
 	lines="$(
-		git tag -l -n --sort=-version:refname | awk -F' {2,}' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print ID_COLOUR $1 SHELL_COLOUR" - " TEXT_COLOUR $2}' |
+		git tag -l -n --sort=-version:refname | awk -F' ' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{first = $1; $1=""; print ID_COLOUR first SHELL_COLOUR" :" TEXT_COLOUR $0}' | sed 's/^ //g' |
 			fzf -d' ' \
 				--exit-0 \
-				--ansi --delimiter=- \
+				--ansi --delimiter=: \
 				--prompt="tags:" \
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1} 2>/dev/null" \
 				--expect="enter,ctrl-d" \
@@ -355,7 +355,7 @@ tags() {
 	)"
 
 	key="$(head -1 <<<"$lines")"
-	tag="$(sed 1d <<<"$lines" | cut -d '-' -f1 | tr -d ' ')"
+	tag="$(sed 1d <<<"$lines" | cut -d ':' -f1 | tr -d ' ')"
 
 	case "$key" in
 	enter) git checkout tags/"$tag" ;;
