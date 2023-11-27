@@ -7,7 +7,7 @@ ID_COLOUR="\033[36m"
 TEXT_COLOUR="\033[34m"
 STATUS_COLOUR="\033[33m"
 SHELL_COLOUR="\033[0m"
-[[ -z $(command -v bat) ]] && HELP_PAGER="less" || HELP_PAGER="bat -l man -p"
+[[ -z $(command -v bat) ]] && HELP_PAGER="less -R" || HELP_PAGER="bat -l man -p"
 [[ -z $(command -v bat) ]] && LOG_PAGER="less -R" || LOG_PAGER="bat -l log -p"
 
 help() {
