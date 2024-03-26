@@ -349,8 +349,8 @@ tags() {
 				--ansi --delimiter=: \
 				--prompt="tags:" \
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1} 2>/dev/null" \
-				--expect="enter,ctrl-d" \
-				--header=$'Enter: checkout tag, Ctrl-d: diff tag\n\n' \
+				--expect="enter,ctrl-d,ctrl-v" \
+				--header=$'Enter: checkout tag, Ctrl-d: diff tag, Ctrl-v: view tag commit\n\n' \
 				--no-info
 	)"
 
@@ -360,6 +360,7 @@ tags() {
 	case "$key" in
 	enter) git checkout tags/"$tag" ;;
 	ctrl-d) git diff "$tag" ;;
+	ctrl-v) git log -1 tags/"$tag" ;;
 	esac
 }
 
