@@ -81,6 +81,7 @@ USAGE
 
   	enter: checkout the tag in detached HEAD state
 	ctrl-d: diff the tag against current branch
+	ctrl-v: show commit the tag points to
 
   gh f -s | gh f search
 
