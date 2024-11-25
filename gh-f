@@ -167,14 +167,27 @@ runs() {
 		echo "no gh remote found"
 		exit
 	}; fi
-	gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-		'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
-		fzf -d' ' \
-			--exit-0 \
-			--ansi --delimiter=: \
-			--prompt="runs logs:" \
-			--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
-			--bind "enter:execute:(gh run view --log {1} | $LOG_PAGER)"
+	lines="$(
+		gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+			'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 SHELL_COLOUR" - " STATUS_COLOUR $2 SHELL_COLOUR" - "$9}' |
+			fzf -d' ' \
+				--exit-0 \
+				--ansi --delimiter=: \
+				--prompt="runs logs:" \
+				--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
+				--expect="enter,ctrl-v,ctrl-o" \
+				--header=$'Enter: view run, Ctrl-v: view logs, Ctrl-o: view on web\n\n' \
+				--no-info
+	)"
+
+	key="$(head -1 <<<"$lines")"
+	run_id="$(sed 1d <<<"$lines" | cut -d: -f1)"
+
+	case "$key" in
+	enter) gh run view -v "$run_id" ;;
+	ctrl-v) gh run view --log "$run_id" | $LOG_PAGER ;;
+	ctrl-o) gh run view -w "$run_id" ;;
+	esac
 }
 
 greps() {
