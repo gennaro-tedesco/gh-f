@@ -141,8 +141,8 @@ adds() {
 					--exit-0 \
 					--ansi --delimiter=: \
 					--multi \
-					--prompt="add files:" \
-					--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}" \
+					--ghost="add files:" \
+					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}" \
 					--expect="enter,ctrl-d" \
 					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
@@ -174,7 +174,7 @@ runs() {
 			fzf -d' ' \
 				--exit-0 \
 				--ansi --delimiter=: \
-				--prompt="runs logs:" \
+				--ghost="select run" \
 				--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh run view {1}' \
 				--expect="enter,ctrl-v,ctrl-o" \
 				--header=$'Enter: view run, Ctrl-v: view logs, Ctrl-o: view on web\n\n' \
@@ -213,7 +213,8 @@ greps() {
 			fzf -d' ' \
 				+s \
 				--ansi \
-				--prompt="files containing '$regex' in revisions:"
+				--ghost='file name' \
+				--footer="search regex: $regex"
 	)"
 
 	revision="$(
@@ -223,7 +224,8 @@ greps() {
 				+s \
 				--exit-0 \
 				--ansi \
-				--prompt="commits containing $regex in $selected_file:" \
+				--ghost="select commit" \
+				--footer="search regex: $regex in $selected_file" \
 				--preview="git show {}:$selected_file | grep -n -C1 --color=always \"$regex\""
 	)"
 	git show "$revision":$selected_file
@@ -245,7 +247,7 @@ prs() {
 				fzf -d' ' \
 					--exit-0 \
 					--ansi --delimiter=: \
-					--prompt="open PRs:" \
+					--ghost="select PR" \
 					--preview='GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS gh pr view {1}' \
 					--expect="enter,ctrl-d,ctrl-v" \
 					--header=$'Enter: checkout PR, Ctrl-d: diff PR, Ctrl-v: view PR\n\n' \
@@ -276,7 +278,7 @@ branches() {
 	lines="$(
 		git branch -a --sort=-committerdate | sed 's/[* ]//g' | grep -v 'HEAD' |
 			fzf -d' ' \
-				--prompt="branches:" \
+				--ghost="select branch" \
 				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
 				--expect "enter,ctrl-d,ctrl-h,ctrl-x" \
 				--header=$'Enter: checkout, Ctrl-d: diff branch, Ctrl-h: triple dot diff, Ctrl-x: delete branch\n\n' \
@@ -335,7 +337,7 @@ logs() {
 			fzf -d' ' \
 				+s \
 				--ansi \
-				--prompt="$(git branch --show-current):" \
+				--ghost="select commit" \
 				--preview="git show --stat --abbrev-commit {1} --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset): %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset)' --color=always" \
 				--expect="enter,ctrl-d,ctrl-v" \
 				--header=$'Enter: checkout, Ctrl-d: diff, Ctrl-v: view commit patch\n\n' \
@@ -363,7 +365,7 @@ tags() {
 			fzf -d' ' \
 				--exit-0 \
 				--ansi --delimiter=: \
-				--prompt="tags:" \
+				--ghost="select tag" \
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1} 2>/dev/null" \
 				--expect="enter,ctrl-d,ctrl-v" \
 				--header=$'Enter: checkout tag, Ctrl-d: diff tag, Ctrl-v: view tag commit\n\n' \
@@ -389,11 +391,13 @@ search() {
 	issue_list="$(gh issue list -s"all" -R "$repo" -L 300 -S"$search")"
 
 	if [[ -n $issue_list ]]; then
-		issue="$(echo "$issue_list" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
-			fzf -d' ' \
-				--ansi \
-				--prompt="$search in $repo:")"
+		issue="$(
+			echo "$issue_list" | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
+				'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
+				fzf -d' ' \
+					--ansi \
+					--ghost="select issue"
+		)"
 	else
 		echo "$search not found in $repo"
 		exit
@@ -412,7 +416,7 @@ myissue() {
 			'{print ID_COLOUR $1 SHELL_COLOUR": " TEXT_COLOUR $3 SHELL_COLOUR" - " STATUS_COLOUR $2}' |
 			fzf -d' ' \
 				--ansi \
-				--prompt="my issues in $repo:")"
+				--ghost="select issue")"
 	else
 		echo "no issue found in $repo"
 		exit
@@ -430,20 +434,20 @@ pick() {
 		echo "no alternate branch to pick from"
 		exit
 	}; fi
-	from_branch=$(git branch | fzf -d' ' --prompt="pick from branch:" --no-info | tr -d ' ')
+	from_branch=$(git branch | fzf -d' ' --ghost="pick from branch" --no-info | tr -d ' ')
 	[[ -n "$from_branch" ]] && files="$(git diff --name-only --diff-filter=M "$from_branch" |
 		fzf -d' ' \
 			--multi \
 			--select-1 \
 			--exit-0 \
 			--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always $from_branch {1} 2>/dev/null" \
-			--prompt="diff files:")" || echo "no branch selected"
+			--ghost="select files:")" || echo "no branch selected"
 
 	[[ -n ${files} ]] && git restore --source "${from_branch}" ${files}
 }
 
 envs() {
-	config_var=$(git config --list | cut -d= -f1 | fzf -d' ' --prompt 'config list:' --no-info --preview='git config {}')
+	config_var=$(git config --list | cut -d= -f1 | fzf -d' ' --ghost 'select value' --no-info --bind 'focus:transform-footer:git config {}')
 	[[ -n "$config_var" ]] && git config "$config_var"
 }
 
