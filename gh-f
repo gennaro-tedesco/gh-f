@@ -23,6 +23,7 @@ COMMANDS
   -d|diffs: diff files by extension
   -l|logs: select commits and show diff
   -t|tags: checkout and diff version tags
+  -R|releases: show and diff github releases
   -s|search: search issues in any repository
   -m|myissue: search issues you opened somewhere
   -k|pick: cherrypick files from one branch to the other
@@ -83,6 +84,12 @@ USAGE
   	enter: checkout the tag in detached HEAD state
 	ctrl-d: diff the tag against current branch
 	ctrl-v: show commit the tag points to
+
+  gh f -R | gh f releases
+
+  	enter: checkout the release tag in detached HEAD state
+	ctrl-d: diff the release tag against current branch
+	ctrl-v: show commit the release tag points to
 
   gh f -s | gh f search
 
@@ -383,6 +390,35 @@ tags() {
 	esac
 }
 
+releases() {
+	if ! is_remote; then {
+		echo "no gh remote found"
+		exit
+	}; fi
+
+	lines="$(
+		gh release list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" '{print ID_COLOUR $3}' |
+			fzf -d' ' \
+				--exit-0 \
+				--ansi --delimiter=: \
+				--ghost="select release" \
+				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1} 2>/dev/null" \
+				--expect="enter,ctrl-d,ctrl-v" \
+				--header=$'Enter: checkout tag, Ctrl-d: diff tag, Ctrl-v: view tag commit\n\n' \
+				--no-info \
+				--no-sort
+	)"
+
+	key="$(head -1 <<<"$lines")"
+	tag="$(sed 1d <<<"$lines" | tr -d ' ')"
+
+	case "$key" in
+	enter) git checkout tags/"$tag" ;;
+	ctrl-d) git diff "$tag" ;;
+	ctrl-v) git log -1 tags/"$tag" ;;
+	esac
+}
+
 search() {
 	read -rp "repository name: " repo
 	[[ -z $repo ]] && exit
@@ -492,6 +528,10 @@ while [[ "$#" -gt 0 ]]; do
 		;;
 	-t | tags)
 		tags
+		shift
+		;;
+	-R | releases)
+		releases
 		shift
 		;;
 	-s | search)
