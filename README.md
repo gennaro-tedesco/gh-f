@@ -28,7 +28,7 @@ gh extension install gennaro-tedesco/gh-f
 
 ### Requirements
 
-- fzf
+- [fzf](https://github.com/junegunn/fzf)
 - [gnu core utils](https://www.gnu.org/software/coreutils/)
 - [bat](https://github.com/sharkdp/bat) (optional, if not detected it uses `less` as a pager, instead)
 
@@ -54,21 +54,22 @@ gh f [cmd]
 
 takes one of the following arguments or flags
 
-| command      | description                               | binds                                                                                             |
+| command | description | binds |
 | :----------- | :---------------------------------------- | :------------------------------------------------------------------------------------------------ |
-| -a, adds     | add files to staging area                 | enter: add files to staging area<br>ctrl-d: diff selected file                                    |
-| -r, runs     | show github workflow runs and filter logs | enter: search run logs                                                                            |
-| -g, greps    | grep in files in revision history         | interactive prompt: insert regex, select files, show pattern in revision history                  |
-| -p, prs      | view, diff and checkout PR                | enter: checkout selected PR<br>ctrl-d: diff selected PR<br>ctrl-v: view selected PR               |
-| -b, branches | checkout and diff branches                | enter: checkout selected branch<br>ctrl-d: diff selected branch<br>ctrl-x: delete selected branch |
-| -l, logs     | view, diff and checkout from logs history | enter: checkout selected commit<br>ctrl-d: diff selected commit<br>ctrl-v: view commit patch      |
-| -t, tags     | checkout and diff version tags            | enter: checkout tag in detached HEAD<br>ctrl-d diff against current branch                        |
-| -s, search   | search issues in any repository           | interactive prompt: follow instructions                                                           |
-| -m, myissue  | search issues you opened somewhere        | interactive prompt: follow instructions                                                           |
-| -k, pick     | cherrypick files between branches         | enter: checkout cherrypicked files from branch                                                    |
-| -e, envs     | show git config list                      | enter: print selected config variable                                                             |
-| -h, help     | show help page                            |
-| -V, version  | print the current version                 |
+| -a, adds | add files to staging area | enter: add files to staging area<br>ctrl-d: diff selected file |
+| -r, runs | show github workflow runs and filter logs | enter: search run logs |
+| -g, greps | grep in files in revision history | interactive prompt: insert regex, select files, show pattern in revision history |
+| -p, prs | view, diff and checkout PR | enter: checkout selected PR<br>ctrl-d: diff selected PR<br>ctrl-v: view selected PR |
+| -b, branches | checkout and diff branches | enter: checkout selected branch<br>ctrl-d: diff selected branch<br>ctrl-x: delete selected branch |
+| -l, logs | view, diff and checkout from logs history | enter: checkout selected commit<br>ctrl-d: diff selected commit<br>ctrl-v: view commit patch |
+| -t, tags | checkout and diff version tags | enter: checkout tag in detached HEAD<br>ctrl-d diff against current branch<br>ctrl-v: view tag commit |
+| -R, releases | checkout and diff release tags | enter: checkout tag in detached HEAD<br>ctrl-d diff against current branch<br>ctrl-v: view release commit |
+| -s, search | search issues in any repository | interactive prompt: follow instructions |
+| -m, myissue | search issues you opened somewhere | interactive prompt: follow instructions |
+| -k, pick | cherrypick files between branches | enter: checkout cherrypicked files from branch |
+| -e, envs | show git config list | enter: print selected config variable |
+| -h, help | show help page |
+| -V, version | print the current version |
 
 Most commands follow the semantics of `git` standard instructions (so that you can remember them easily), only we append an `s` to avoid conflicts, should you have those commands lying around in the shell as aliases or for scripting.
 
