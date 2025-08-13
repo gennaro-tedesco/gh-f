@@ -415,7 +415,7 @@ releases() {
 	case "$key" in
 	enter) git checkout tags/"$tag" ;;
 	ctrl-d) git diff "$tag" ;;
-	ctrl-v) git log -1 tags/"$tag" ;;
+	ctrl-v) gh release view "$tag" ;;
 	esac
 }
 
