@@ -317,7 +317,7 @@ diffs() {
 			fzf -d' ' \
 				--no-multi \
 				--exit-0 \
-				--prompt="select extension:" \
+				--ghost="select extension:" \
 				--preview="GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- '*.{1}'" \
 				--expect="enter,ctrl-d,ctrl-x" \
 				--header=$'Enter: add file(s), Ctrl-d: diff file(s), Ctrl-x: checkout file(s)\n\n' \
@@ -397,7 +397,7 @@ releases() {
 	}; fi
 
 	lines="$(
-		gh release list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" '{print ID_COLOUR $3}' |
+		gh release list -L100 | awk -F'\t' -v TEXT_COLOUR="$TEXT_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" '{print TEXT_COLOUR $3 SHELL_COLOUR": " substr($4,1,10)}' |
 			fzf -d' ' \
 				--exit-0 \
 				--ansi --delimiter=: \
@@ -410,7 +410,7 @@ releases() {
 	)"
 
 	key="$(head -1 <<<"$lines")"
-	tag="$(sed 1d <<<"$lines" | tr -d ' ')"
+	tag="$(sed 1d <<<"$lines" | cut -d: -f1 | tr -d ' ')"
 
 	case "$key" in
 	enter) git checkout tags/"$tag" ;;
