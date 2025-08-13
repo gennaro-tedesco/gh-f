@@ -42,11 +42,11 @@ gh f
 
 shows the help page. Or watch it in action:
 
-![Image](https://github.com/user-attachments/assets/0d881522-837d-4493-bbc8-2b00099487bc)
+![Image](https://github.com/user-attachments/assets/9f844b23-ab3b-4a74-a26c-5c0a8c3dac61)
 
 ...and more
 
-![Image](https://github.com/user-attachments/assets/f288f3b7-03ee-48c8-886b-9b36b4fd1fe2)
+![Image](https://github.com/user-attachments/assets/cdbcd37e-3c10-4b26-ad6f-c122bb9a8f04)
 
 ```
 gh f [cmd]
