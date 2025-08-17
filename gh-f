@@ -62,7 +62,7 @@ USAGE
 
 	enter: checkout the branch (track if remote)
 	ctrl-d: diff the branch
-	ctrl-h: triple dot diff: <branch>...HEAD
+	ctrl-s: triple dot diff: <branch>...HEAD
 	ctrl-x: delete the branch (prompt for confirmation)
 
   gh f -d | gh f diffs
@@ -287,8 +287,8 @@ branches() {
 			fzf -d' ' \
 				--ghost="select branch" \
 				--preview="git log --oneline --format='%C(bold blue)%h%C(reset) - %C(green)%ar%C(reset) - %C(cyan)%an%C(reset)%C(bold yellow)%d%C(reset): %s' --color=always {}" \
-				--expect "enter,ctrl-d,ctrl-h,ctrl-x" \
-				--header=$'Enter: checkout, Ctrl-d: diff branch, Ctrl-h: triple dot diff, Ctrl-x: delete branch\n\n' \
+				--expect "enter,ctrl-d,ctrl-s,ctrl-x" \
+				--header=$'Enter: checkout, Ctrl-d: diff branch, Ctrl-s: triple dot diff, Ctrl-x: delete branch\n\n' \
 				--no-info
 	)"
 
@@ -298,7 +298,7 @@ branches() {
 	case "$key" in
 	enter) if [[ $branch == *"origin"* ]]; then git checkout --track "$branch"; else git checkout "$branch"; fi ;;
 	ctrl-d) echo "$branch <-> $(git branch --show-current)" && git diff "$branch" ;;
-	ctrl-h) echo "$branch <-> $(git branch --show-current)" && git diff "$branch"...HEAD ;;
+	ctrl-s) echo "$branch <-> $(git branch --show-current)" && git diff "$branch"...HEAD ;;
 	ctrl-x)
 		read -rp "Delete branch \"$branch\"? [y|n] "
 		if [[ $REPLY =~ ^[Yy]$ ]]; then git branch -D "$branch"; fi
