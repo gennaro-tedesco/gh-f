@@ -244,7 +244,7 @@ prs() {
 		echo "no gh remote found"
 		exit
 	}; fi
-	open_prs="$(gh pr list -s"open")"
+	open_prs="$(gh pr list "$@" -s"open")"
 
 	if [[ -n "$open_prs" ]]; then
 
@@ -510,7 +510,8 @@ while [[ "$#" -gt 0 ]]; do
 		shift
 		;;
 	-p | prs)
-		prs
+		shift
+		prs "$@"
 		shift
 		;;
 	-b | branches)
