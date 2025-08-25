@@ -149,7 +149,7 @@ adds() {
 					--ansi --delimiter=: \
 					--multi \
 					--ghost="add files:" \
-					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}" \
+					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- {1} __NOVAR__" \
 					--expect="enter,ctrl-d" \
 					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
