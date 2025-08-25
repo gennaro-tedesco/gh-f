@@ -149,7 +149,7 @@ adds() {
 					--ansi --delimiter=: \
 					--multi \
 					--ghost="add files:" \
-					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always {1}" \
+					--bind="focus:transform-footer:GH_FORCE_TTY=$FZF_PREVIEW_COLUMNS git diff --stat --color=always -- {1} __NOVAR__" \
 					--expect="enter,ctrl-d" \
 					--header=$'Enter: add file(s), Ctrl-d: diff file(s)\n\n' \
 					--no-info
@@ -244,7 +244,7 @@ prs() {
 		echo "no gh remote found"
 		exit
 	}; fi
-	open_prs="$(gh pr list -s"open")"
+	open_prs="$(gh pr list "$@" -s"open")"
 
 	if [[ -n "$open_prs" ]]; then
 
@@ -510,7 +510,8 @@ while [[ "$#" -gt 0 ]]; do
 		shift
 		;;
 	-p | prs)
-		prs
+		shift
+		prs "$@"
 		shift
 		;;
 	-b | branches)
