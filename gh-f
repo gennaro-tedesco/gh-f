@@ -177,7 +177,7 @@ runs() {
 	}; fi
 	lines="$(
 		gh run list -L100 | awk -F'\t' -v ID_COLOUR="$ID_COLOUR" -v TEXT_COLOUR="$TEXT_COLOUR" -v STATUS_COLOUR="$STATUS_COLOUR" -v SHELL_COLOUR="$SHELL_COLOUR" \
-			'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 STATUS_COLOUR" ("$2")"}' |
+			'{print ID_COLOUR $7 SHELL_COLOUR": " TEXT_COLOUR $4 STATUS_COLOUR" ("$2")" SHELL_COLOUR": " $5}' |
 			fzf -d' ' \
 				--exit-0 \
 				--ansi --delimiter=: \
